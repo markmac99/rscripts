@@ -1,0 +1,78 @@
+R suite for the analysis of UFO Orbit data
+Peter Campbell-Burns, Richard Kacerek
+UK Meteor Observation Network
+ukmeteornetwork@gmail.com
+
+Users are free to use and adapt these scripts to meet their own needs.  We hope too that others will be willing to contribute ideas and analytical methods (and scripts) so that we can add to this suite and build a more complete set of resources for the meteor community.
+License
+This work is shared under the Creative Common  Non Commercial Sharealike License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
+About the distribution
+The distribution comprises a set of R scripts and a reference data file organised in folders as follows.
+
+Folder	Description
+ANALYSIS	Top level directory
+ANALYSIS/DATA	Input data directory (use of this folder is optional)
+ANALYSIS/LIBRARY	
+…PLOTS	Scripts creating graphical output
+…TABLES	Scripts creating tabular output
+…FUNCTIONS	Common functions used by the analysis scripts
+ANALYSIS/CONFIG	Configuration script and reference data
+ANALYSIS/REPORTS	Folder to receive report outputs
+ANALYSIS/RWORKSPACE	R workspace (saved sessions)
+Installing
+1.	Install R and RStudio (if not already installed).
+2.	Unzip the ANALYSIS folder into the My Documents folder (Windows).
+Using the analysis package
+1.	Save UFO Orbit csv file to the ANALYSIS/DATA folder (any other folder can be used)
+2.	In the RStudio or R Console, open and run the master script: ANALYSIS/GENERATE_REPORTS.R
+3.	In response to the prompts:
+•	Select the UFO Orbit csv input file (this must be a UFO ORBIT csv file), 
+•	Select a stream name (or ALL) from the displayed list, and 
+•	Select a year (or ALL) from the displayed list.
+4.	Make a mental note to buy the guys from UKMON a beer at the next IMO conference.
+Reports are generated automatically and will be written to the ANALYSIS/REPORTS folder.
+Note: the UFO ORBIT csv export must contain Unified observations; corresponding paired station observations are used by some reports but need not be exported.
+Reference Data
+File ANALYSIS/CONFIG/streamenames.csv contains stream names and stream activity information used by various graphical reports, solar longitude date ranges are used for timeline plots where activity is displayed by solar longitude.  
+
+SelectStart and SelectEnd are used by timeline plots where the time interval is displayed in a date format (solar longitude is not well understood by the general public making a date time format is more useful for plots generated for PR / Outreach as).
+
+Column	Description
+code	3 character stream mnemonic (e.g. “AAH”)
+streamname	Full stream name (e.g. “August alpha Herculids”)
+sol_1	Solar longitude of stream start
+sol2	Solar longitude of stream end
+sol_peak	Solar longitude of stream peak
+selectstart	Date and time of stream start 
+selectend	Date and time of stream end
+Customisation
+Configuration settings are in file ANALYSIS/CONFIG/Lib_config.r:
+
+Parameter	Description
+SourceUnified   	Input file (If NA, the master script prompts at runtime) 
+OutType	Output type: “PDF”, “JPEG” or NA (prompts at run time)
+Landscape, Portrait	Page Sizes for portrait and landscape output
+SelectInterval, SelectIntervalSol	Intervals (bin sizes) for timeline plots
+File path variables:	
+o	Root	Root folder (Analysis)
+o	ReportDir	Reports folder
+o	WorkingDir 	R working directory
+o	TabsDir	Script for generating tabular output
+o	PlotDir	Script for generating graphical output
+o	FuncDir	Common functions
+o	DataDir	Input data directory
+o	RefDir	Reference data
+Analysis scripts
+Analysis scripts are called using the R “source” statements.   Each script can use the following in-scope data objects created by the master script: 
+
+Object	Description
+mt	Data frame containing imported UNIFIED UFO Orbit data
+mu	Cleaned and filtered (by stream / year) mt rows for unified observations
+ms	Cleaned and filtered (by stream / year) mt rows for paired station observations
+Dataset	Descriptive title printed on the plot footer
+SelectStream	The 3 digit mnemonic for the selected stream
+Streamname	The common name of the selected stream
+SelectStart	The start time for timeline plots 
+SelectEnd	The start time for timeline plots 
+Solpeak	Solar longitude of a shower peak
+
