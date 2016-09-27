@@ -1,7 +1,6 @@
 #=============================================================================
 #
 #-- Author: P Campbell-Burns, UKMON
-#-- Date:   03 December 2015
 #
 #
 #-- Description:
@@ -33,6 +32,12 @@
 #-- Shared under the Creative Common  Non Commercial Sharealike 
 #   License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
 #
+#-- Version history
+#
+#   Vers  Date          Notes
+#   ----  ----          -----
+#   1.1   20/09/2016    Added QA criteria function call 
+#   1.0   03/12/2016    First release
 #
 #=============================================================================
 
@@ -64,7 +69,7 @@
 
     SelectStream = stream[1,]
     Streamname   = stream[2,]
-    Solpeak     = as.numeric(stream[3,])
+    Solpeak      = as.numeric(stream[3,])
     SelectStart  = stream[4,]
     SelectEnd    = stream[5,]
 
@@ -77,6 +82,10 @@
         stop("No data in UNIFIED dataframe")
     }
 
+# Apply Quality Criteria
+    
+    mu <- filter_apply_qa(mu)
+    
 # Set dataset title
 
     DataSet=paste("Dataset:",SelectStream,"period",substring(min(mu$X_local),1,10),"to",substring(max(mu$X_local),1,10))

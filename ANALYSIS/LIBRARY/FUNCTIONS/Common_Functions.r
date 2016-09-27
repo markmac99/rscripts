@@ -1,8 +1,6 @@
 #*******************************************************************************
 #
 #-- Author: P Campbell-Burns, UKMON
-#-- Date:   11 Nov 2015
-#
 #
 #-- Description:
 #
@@ -14,9 +12,17 @@
 #   - read_ufo          (Read UFO Orbit data file)
 #   - filter_stream     (Filter input data frame by type, stream, and year)
 #   - get.bin.counts    (Frequency distribution with variable bin size)
+#   - filter_apply_qa   (Apply QA filter)
 #
 #-- Shared under the Creative Common  Non Commercial Sharealike 
 #   License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
+#
+#-- Version history:
+#
+#   Vers  Date    Notes
+#   ----  ----    -----
+#   1.1   20/09/2016  Added Quality Criteria filter function
+#   1.0   15/11/2015  First release
 #
 #
 #*******************************************************************************
@@ -160,8 +166,6 @@ return (mt)
 
 }
 
-
-
 filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
 #===============================================================================
 #
@@ -205,3 +209,32 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
     return(dfm)
 }
 
+
+filter_apply_qa <- function(mx, QA_e=1, QA_dv12=7.0, QA_GM=80.0, QA_Dur=0.1, QA_QA=0.15, QA_Qo=1.0, QA_Qc=10.0, QA_Delta_GP=0.5, QA_H1=200, QA_H2=20 ) {
+  #===============================================================================
+  #
+  #-- Filters input data frame mx for all meteors meeting quality criteria
+  #
+  #===============================================================================
+  #-- Filter input data frame by type (e.g. unified), stream, and year
+  n_start <- nrow(mx)
+  cat("\n")
+  cat(paste("QA filtering:\n")) 
+  cat(paste("=============\n"))    
+  my<-subset(mx, X_e <= QA_e & X_QA >= QA_QA & abs(mx$X_dv12) <= QA_dv12 & abs(mx$X_Gm) >= QA_GM & X_dur >= QA_Dur & X_H1 <= QA_H1 & X_H2 >= QA_H2 & X_Qo >= QA_Qo & X_Qc >= QA_Qc )
+  cat(paste("- e    < ",QA_e,   "\n"))   
+  cat(paste("- dc12 <=",QA_dv12,"\n")) 
+  cat(paste("- GM   >=",QA_GM,  "\n"))  
+  cat(paste("- Dur  >=",QA_Dur ,"\n")) 
+  cat(paste("- QA   >=",QA_QA,  "\n"))  
+  cat(paste("- Qo   >=",QA_Qo,  "\n")) 
+  cat(paste("- Qc   >=",QA_Qc,  "\n"))  
+  cat(paste("- H1   <=",QA_H1,  "\n"))  
+  cat(paste("- H2   >=",QA_H2,  "\n\n")) 
+  n_end <- nrow(my)
+  pct = 0
+  if (n_end != 0) {pct = (100*n_end/n_start)}
+  cat(paste("Rows out:",n_end,", ", round( 100 - pct ,digits=1),"% loss.\n"))    
+  return (my)
+  
+}
