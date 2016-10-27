@@ -4,7 +4,7 @@ Peter Campbell-Burns, Richard Kacerek
 UK Meteor Observation Network
 ukmeteornetwork@gmail.com
 
-These scripts provide a basic set of reports in tabular and graphical format and include examples of D_Criterion analysis  and interactive 3D plots of meteor orbits.    Users are invited to use and adapt these scripts to meet their own needs.  
+These scripts provide a basic set of reports in tabular and graphical format and include examples of D_Criterion analysis  and interactive 3D plots of meteor orbits.  Users are invited to use and adapt these scripts to meet their own needs.  
 
 We hope too that others will be willing to contribute ideas and analytical methods (and scripts) so that we can add to this suite and build a more complete set of resources for the meteor community.
 
@@ -31,8 +31,14 @@ Reports are generated automatically and will be written to the ANALYSIS/REPORTS 
 
 Note: the UFO ORBIT csv export must contain Unified observations; corresponding paired station observations need not be exported.
 
-Reference Data File ANALYSIS/CONFIG/streamenames.csv contains stream names and stream activity information used by 
-various graphical reports, solar longitude date ranges are used for timeline plots where activity is displayed by solar longitude.  
+Reference Data File ANALYSIS/CONFIG/streamenames.csv contains stream names and stream activity information used by various graphical reports, solar longitude date ranges are used for timeline plots where activity is displayed by solar longitude.  
+
+The CONFIG filder holds a set of configuration files which allow certain behavious to be modified.  These include:
+- The folders used to source data and write reports
+- Whether or not to invoke QA filtering
+- QA filter parameters.
+
+UFO orbit implements its own quality criteria.  However an additional layer of QA filtering is implemented in this R-suite.  This is to enable mutiple UFO Orbit files processed at different times to be merged and a minimum QA threshold applied across the input files. Default QA criteria are derived from Edmond.
 
 |Column|Description|
 |------|-----------|
@@ -68,6 +74,7 @@ The distribution comprises a set of R scripts and a reference data file organise
 |----|-----------|
 |GENERATE_REPORTS.R|Full reporting package, importing data applying quality criteria and generating tables and plots|
 |STREAM_ANALYSIS_ORBITS.R|Imports data, performs D criterion analysis against a selected reference orbit and generates an interactive 3d plot of Orbits meeting threshold criterion.|
+|QA Filter Check|Runs the QA filter function for the purposes of evaluating the drop rate|
 |STREAM_ANALYSIS_CLASSIFY.R|Imports data, finds best match for each observation against a list of reference orbits and plots D_Criteria by stream|
 
 ### Report Libraries
@@ -110,6 +117,7 @@ The distribution comprises a set of R scripts and a reference data file organise
 ||Distribution of quality metric QA (all stations)|qa_overall.r|
 ||Distribution of quality metric QA by station|qa_by_station.r|
 ||Summary of Delta Vo by station (min, max, mean, sd)|delta_vo_by_station.r|
+||Summary of meteor durations|meteor_duration.r|
 
 #### Tables
 

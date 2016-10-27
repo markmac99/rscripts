@@ -8,14 +8,21 @@
 #-- Shared under the Creative Common  Non Commercial Sharealike 
 #   License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
 #
+#-- Version History
+#  ----------------
+#   Vers  Date          Note
+#   1.0   12/12/2015    First release
+#
 # =================================================================
 
+#-- Switch to control wheter QA criteria are applied
 
+Apply_QA = FALSE
 
 #-- Source data file name (Value of NA trigers file picker dialogue)
 
 #SourceUnified   ="EDMOND 5 v2 - Unified.csv"            # Source UFO Orbit UNIFIED data (path is DataDir below)
-#SourceUnified   ="Unified.csv"                           # Source UFO Orbit UNIFIED data (path is DataDir below)
+#SourceUnified   ="Unified.csv"                          # Source UFO Orbit UNIFIED data (path is DataDir below)
 SourceUnified   = NA
 
 #-- Page sizing
@@ -40,8 +47,8 @@ SelectInterval    = 10 * 60 # in seconds
 SelectIntervalSol = 0.01    # in degrees solar longitude
 
 #-- Options for output
-#OutType = "JPG"
-OutType = "PDF"
+OutType = "JPG"
+#OutType = "PDF"
 #OutType = "CONSOLE"
 
 #-- Filesystem parameters
@@ -56,4 +63,4 @@ FuncDir        = paste(root,"/LIBRARY/FUNCTIONS",sep="") # Path to R report code
 PlotDir        = paste(root,"/LIBRARY/PLOTS",sep="")     # Path to R report code modules
 TabsDir        = paste(root,"/LIBRARY/TABLES",sep="")    # Path to R report code modules
 RefDir         = paste(root,"/CONFIG",sep="")            # Path to Reference data (meteor lookup)
-ReportDir      = paste(root,"/REPORTS",sep="")		 # Path to output report directory
+ReportDir      = paste(root,"/REPORTS",sep="")		       # Path to output report directory

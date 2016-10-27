@@ -40,7 +40,14 @@ Runscript <- function(Scriptfile,Otype=NA, orient="port") {
 #===============================================================================
 # Define Output Macro which runs script setting output, page orientation 
 # and plot size
-    
+  
+    repeat{
+      if(dev.cur() == 1) {
+        break
+      }
+      dev.off()
+    }
+  
     wd = orient[Otype,]$width
     ht = orient[Otype,]$height
     pp = orient[Otype,]$papr
@@ -48,15 +55,16 @@ Runscript <- function(Scriptfile,Otype=NA, orient="port") {
     Ofile = sub("\\.R","\\.r",Scriptfile)
 	Ofile = sub("\\.r",paste("_",SelectStream,"_",SelectYr,sep=""),Ofile)
 
-    if (Otype=="JPG") jpeg(paste(ReportDir,"/",Ofile,".jpg",sep=""), 
+    if (Otype=="JPG") jpeg(filename=paste(ReportDir,"/",Ofile,".jpg",sep=""), 
 		    width = wd, height = ht, 
-            units = "px", res=150, pointsize = 12, quality = 100, bg = "white")
+        units = "px", res=150, pointsize = 12, quality = 100, bg = "white")
     
-    if (Otype=="PDF") pdf(paste(ReportDir,"/",Ofile,".pdf",sep=""),onefile=TRUE, paper=as.character(pp), 
-            width = wd, height = ht)
-        
+    if (Otype=="PDF") pdf(paste(ReportDir,"/",Ofile,".pdf",sep=""),
+        onefile=TRUE, paper=as.character(pp), 
+        width = wd, height = ht)
+
 	source(paste(PlotDir,Scriptfile,sep="/"))
-	dev.off(which=dev.cur())
+	dev.off()
  
 }
 
