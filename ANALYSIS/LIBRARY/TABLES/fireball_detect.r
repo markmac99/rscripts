@@ -10,7 +10,7 @@
 #
 # =================================================================
 
-outfile = paste(ReportDir,"/TABLE_Fireballs_",SelectStream,"_",SelectYr,".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_Fireballs",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
 
 # Look for fireball magnitudes
 fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_ID1","X_stream")]

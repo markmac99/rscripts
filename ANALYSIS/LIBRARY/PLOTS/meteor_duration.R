@@ -14,8 +14,10 @@
 
 par(mai=c(1.0,1.5,0.5,1.0))
 
-nobs <- nrow(mu)
-if (nobs < 10) {
+nobs <- nrow(mu) 
+if (nobs == 0) {
+  stop(" **** No data")
+} else if (nobs < 10) {
   brks = 5
 } else if ( nobs < 1000 ) {
   brks = 50
@@ -24,6 +26,9 @@ if (nobs < 10) {
 } else {
   brks = 500
 }
+
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
 
 bgraph <- hist(mu$X_dur , 
                xlab="Duration of meteor (in seconds)",

@@ -65,11 +65,11 @@ DCalc <- function(mu, e2, q2, incl2, node2, peri2, D_Type="DD") {
   
   q1 <- mu$X_q
   e1 <- mu$X_e
-  I21 <- acos(cos(i1) * cos(i2) + sin(i1) * sin(i2) * cos(n1 - n2) )
+  I21 <- acos(cos(i1) * cos(i2) + sin(i1) * sin(i2) * cos(n2 - n1) )
   
   ADIFF <- ifelse((abs(n1-n2) <= pi),abs(n1-n2), abs(abs(n1-n2) - 2 * pi))
-  II21a  <- p2 - p1 + 2 * asin(cos( (i2 + i1)/2 ) * sin( (n2 + n1)/2 ) * sec(I21/2))
-  II21b  <- p2 - p1 - 2 * asin(cos( (i2 + i1)/2 ) * sin( (n2 + n1)/2 ) * sec(I21/2))
+  II21a  <- p2 - p1 + 2 * asin(cos( (i2 + i1)/2 ) * sin( (n2 - n1)/2 ) * sec(I21/2))
+  II21b  <- p2 - p1 - 2 * asin(cos( (i2 + i1)/2 ) * sin( (n2 - n1)/2 ) * sec(I21/2))
   II21   <- ifelse((ADIFF <= pi),II21a,II21B) 
   if (D_Type == "DD") {
     B1 <- asin(sin(i1) * sin(p1))
@@ -81,7 +81,7 @@ DCalc <- function(mu, e2, q2, incl2, node2, peri2, D_Type="DD") {
   }
   
   if (D_Type == "DSH") {	
-    mu$D_Value = sqrt ( (q1 - q2)**2 + (e1 - e2)**2 + (2 * sin(I21/2))**2 + ( (e1 - e2)/2 * 2 * sin(II21/2) )**2 )
+    mu$D_Value = sqrt ( (q1 - q2)**2 + (e1 - e2)**2 + (2 * sin(I21/2))**2 + ( (e1 + e2)/2 * 2 * sin(II21/2) )**2 )
   }
   
   if (D_Type == "DH") {	
@@ -99,9 +99,11 @@ DCalc <- function(mu, e2, q2, incl2, node2, peri2, D_Type="DD") {
     cat("I21:   ",I21[1:n],"\n")
     cat("ADIFF: ",ADIFF[1:n],"\n")
     cat("II21:  ",II21[1:n],"\n")
-    cat("B1:    ",B1[1:n],B2[1:n],"\n")
-    cat("G1:    ",G1[1:n],G2[1:n],"\n")
-    cat("Theta: ",Theta[1:n],"\n")
+    if (D_Type == "DD") {
+      cat("B1:    ",B1[1:n],B2[1:n],"\n")
+      cat("G1:    ",G1[1:n],G2[1:n],"\n")
+      cat("Theta: ",Theta[1:n],"\n")
+    }
     cat("D      ",mu$D_Value[1:10],"\n")
   }
   

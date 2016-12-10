@@ -15,29 +15,33 @@
 #
 # =================================================================
 
+#-- Name of UFO catalogue file
+
+Catalog = "J8"
+
 #-- Switch to control wheter QA criteria are applied
 
-Apply_QA = FALSE
+Apply_QA = TRUE
 
 #-- Source data file name (Value of NA trigers file picker dialogue)
 
-#SourceUnified   ="EDMOND 5 v2 - Unified.csv"            # Source UFO Orbit UNIFIED data (path is DataDir below)
-#SourceUnified   ="Unified.csv"                          # Source UFO Orbit UNIFIED data (path is DataDir below)
-SourceUnified   = NA
+#SourceUnified   = "EDMOND 5 v2 - Unified.csv"            # Source UFO Orbit UNIFIED data (path is DataDir below)
+#SourceUnified   = "Unified.csv"                          # Source UFO Orbit UNIFIED data (path is DataDir below)
+SourceUnified    =  NA                                    # Force file chooser
 
 #-- Page sizing
 
 Portrait = data.frame(
     otype=c("JPG","PDF"),
-    width=c(877,6.5),
-    height=c(1745,9.5),
+    width=c(870,6.5),
+    height=c(1700,9.5),
     papr = "a4",
     row.names=1)
 
 Landscape = data.frame(
     otype=c("JPG","PDF"),
-    width=c(1745,9.5),
-    height=c(877,6.5),
+    width=c(1900,9.5),
+    height=c(1347,6.5),
     papr = "a4r",
     row.names=1)
 
@@ -47,9 +51,9 @@ SelectInterval    = 10 * 60 # in seconds
 SelectIntervalSol = 0.01    # in degrees solar longitude
 
 #-- Options for output
-OutType = "JPG"
-#OutType = "PDF"
-#OutType = "CONSOLE"
+OutType  = NA       # Force dialogue
+#OutType = "JPG"    # Force JPEG
+#OutType = "PDF"    # Force PDF
 
 #-- Filesystem parameters
 

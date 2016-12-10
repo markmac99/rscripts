@@ -1,0 +1,341 @@
+```{r comment_block, echo = FALSE}
+#=============================================================================
+#
+#-- Author: P Campbell-Burns, UKMON
+#
+#
+#-- Description:
+#
+#   This script is an R Markdown / Knitr script that produces a summary report
+#   for all meteor stereams and sporadics.  It uses generic report scripts
+#   from the UKMON R Reporting suite.  Using Knitr the report is output as a 
+#   Single HTML file with embedded images.
+#
+#-- Shared under the Creative Common  Non Commercial Sharealike 
+#   License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
+#
+#-- Version history
+#
+#   Vers  Date          Notes
+#   ----  ----          -----
+#   1.0   07/12/2016    First release
+#
+#=============================================================================
+```
+
+
+```{r select_parameters, echo = FALSE}
+
+# Set report selection criteria
+
+SelectYr      = 2014
+SelectStream  = "ALL"
+Streamname    = ""
+Solpeak       = 139.212097	
+SelectStart   = "2014/08/11 18:18"
+SelectEnd     = "2014/08/14 08:08"
+```
+
+```{r setup_libraries, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(xtable)
+library(knitr)
+```
+
+```{r configure, echo = FALSE}
+source("~/ANALYSIS/CONFIG/Lib_Config.r")
+```
+
+```{r define_macros, echo=FALSE}
+
+filter_apply_qa <- function(mx) {
+  #===============================================================================
+  #
+  #-- Filters input data frame mx for all meteors meeting quality criteria
+  #
+  #===============================================================================
+  #-- Filter input data frame by type (e.g. unified), stream, and year
+  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
+  n_start <- nrow(mx)
+  cat("\n")
+  cat(paste("QA filtering:\n")) 
+  cat(paste("=============\n"))    
+  my<-subset(mx, X_dGP <= QA_dGP & X_QA >= QA_QA & abs(mx$X_dv12) <= QA_dv12 & abs(mx$X_Gm) >= QA_GM & X_dur >= QA_Dur & X_H1 <= QA_H1 & X_H2 >= QA_H2 & X_Qo >= QA_Qo & X_Qc >= QA_Qc )
+  cat(paste("- dc12 <=",QA_dv12,"\n")) 
+  cat(paste("  dGP  <=",QA_dGP, "\n"))
+  cat(paste("- GM   >=",QA_GM,  "\n"))  
+  cat(paste("- Dur  >=",QA_Dur ,"\n")) 
+  cat(paste("- QA   >=",QA_QA,  "\n"))  
+  cat(paste("- Qo   >=",QA_Qo,  "\n")) 
+  cat(paste("- Qc   >=",QA_Qc,  "\n"))  
+  cat(paste("- H1   <=",QA_H1,  "\n"))  
+  cat(paste("- H2   >=",QA_H2,  "\n\n")) 
+  n_end <- nrow(my)
+  pct = 0
+  if (n_end != 0) {pct = (100*n_end/n_start)}
+  cat(paste("Rows out:",n_end,", ", round( 100 - pct ,digits=1),"% loss.\n"))    
+  return (my)
+  QA_Delta_GP
+}
+
+filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
+#===============================================================================
+#-- Filters input data frame mx for all meteors meeting selection criteria
+#-- (stream and year)
+#===============================================================================
+#-- Filter input data frame by type (e.g. unified), stream, and year
+    if (mtype == "UNIFIED") {
+	    my <- subset(mx, substring(X_ID1,2,8) == "UNIFIED")
+	    my$X_ID1[nchar(my$X_ID1) == 11] <- sub("D_","D_0",my$X_ID1[nchar(my$X_ID1) == 11])
+	   }
+    if (mtype != "UNIFIED") my <- subset(mx, substring(X_ID1,2,8) != "UNIFIED")
+    if (mstream != "ALL")  my <- subset(my, X_stream == mstream)
+    if (myr     != "ALL")  my <- subset(my, substring(my$X_localtime,1,4) == myr)
+    return (my)
+}
+
+read_ufo <- function(mx) {
+#===============================================================================
+#
+#-- Presents file picker filtered for CSV files (if no preconfigured input file)
+#-- Ingests file
+#-- Standardises data
+#
+#===============================================================================
+
+# - Read UFO Orbit data file
+    
+# setup filter
+    filt <- matrix(c("Comma separated / Excel files","*.csv"), 
+            nrow = 1, ncol = 2, byrow = TRUE,
+            dimnames = list(c("csv"),c("V1","V2")))
+    
+if (is.na(SourceUnified)) {
+        infile <- choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
+	} else {
+        infile <- paste(DataDir,SourceUnified,sep="/")
+	}
+
+if (infile == "") stop
+
+# --- Read the UFO data file
+
+# Read raw data
+    mt <- read.csv(infile, header=TRUE)
+
+# Standardise ID1
+    mt$X_ID1<- substring(mt$X_ID1,2)
+
+# standardise localtime
+    mt$X_localtime <- as.POSIXct(strptime(mt$X_localtime, "_%Y%m%d_%H%M%S"))
+
+# remove NA localtimes if any
+    mt <- subset(mt, ! is.na(X_localtime))
+
+# Standardise streamname
+    mt$X_stream <- toupper(ifelse(substring(mt$X_stream,1,2)=="_J",substring(mt$X_stream,5),substring(mt$X_stream,2)))
+
+return (mt)
+
+}
+
+```
+
+```{r get_data, echo=FALSE}
+
+OutType       = "CON"
+runtime = format(Sys.time(),"%Y%m%d_%H%M")
+  
+mt <- read_ufo()
+    
+if (is.factor(mt$X_amag)) {
+  cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
+  mt$X_amag <- as.numeric(as.character(mt$X_amag))
+  mt <- mt[!is.na(mt$X_amag),]
+  }
+    
+if (is.factor(mt$X_QA)) {
+  cat("Note: Problem detected in input data - QA converted from factor to numeric")
+  mt$X_QA <- as.numeric(as.character(mt$X_QA))
+  mt <- mt[!is.na(mt$X_QA),]
+  }
+    
+rows_read <- nrow(mt)
+    if (rows_read == 0) {
+        stop("No data in input file")
+    } 
+
+mu <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="UNIFIED")
+ms <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
+    
+if (nrow(mu) == 0) {
+    stop(paste("No UNIFIED observations for stream",SelectStream,"were found in the input data"))
+    } else {
+            if (Apply_QA) {
+                mu <- filter_apply_qa(mu)
+            }
+            rows_to_process <- nrow(mu)
+            if (rows_to_process == 0) {
+              stop ("No data to process - check / adjust QA filter settings")
+            } else {
+            
+            # Set dataset title
+            
+                paste("Dataset:",SelectStream,"period",substring(min(mu$X_local),1,10),"to",substring(max(mu$X_local),1,10))
+            
+
+
+            # Run scripts relevant only to "ALL streams" plots
+            
+
+          }
+    
+    }
+DataSet <- ""
+select_dev <- function(Outfile=NA, Otype=NA, wd=NA, ht=NA, pp=NA)
+ {
+  
+}
+
+```
+---
+title: "Summary report `r SelectYr`"
+output: html_document
+author: UKMON
+date: 27 Nov 2016
+---
+
+# Summary of activity
+
+A total of `r nrow(ms)` individual meteor observations were recorded. The number of observations recorded by individual stations is as follows:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"Streamcounts_plot_by_station.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+After initial processing, the number of unified observations meeting quality criteria as a percentage of individual observations was `r rows_to_process` from `r nrow(ms)` individual station observations (`r sprintf("%.1f",100*rows_to_process/nrow(ms))`)%.  
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"stream_plot_by_correllation.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+The number of unified observations by stream (top ten) is as follows:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"streamcounts.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+
+## Fireball activity
+
+A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period ('r SelectYr`).  A breakdown by months and by shower is shown below.
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"fireball_by_month.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"fireball_by_stream.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+The top 10 brightest fireballs were:
+
+```{r magtab, echo=FALSE}
+fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream")]
+fireball <- fireball[order(fireball$X_mag),]
+maxrow = min(nrow(fireball),10)
+colnames(fireball) <- c("Datetime","Magnitude", "Stream")
+kable(fireball[1:maxrow,],row.names=FALSE)
+```
+
+
+## Velocity distribution 
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"stream_plot_vel.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+## Magnitudes 
+
+The following graphs show the distribution of velocities and magnitudes are shown below:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"stream_plot_mag.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"abs_magnitude_vs_h1_h2_reg.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+The altitudes at which ablation was visible is shown in the plot below
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"stream_ablation.r",sep="/"),local=TRUE)
+```
+
+The maximum start heigh was `r sprintf("%.1f",max(mu$X_H1))` km and the minimum end height was `r sprintf("%.1f",min(mu$X_H2))` km.  The distribution of distances travelled through the ablation zone was as follows:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"observed_trajectory_LD21.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+## Other Data of Interest
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"semimajor_v_ascending.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+## Data matching
+
+The following table shows the camera pairings that are producing the highest number of unified observations.
+
+```{r echo=FALSE, eval = (nrow(mt) > 0),fig.height = 5, fig.extra='style="float:left"'}
+
+tmp <- subset(mt,substring(mt$X_ID1,2,8) != "UNIFIED")
+tmp$X_ID2 = substr(tmp$X_ID2,2,30)
+outtab <- table(tmp$X_ID1,tmp$X_ID2) 
+unified <- data.frame()
+for (irow in 1: nrow(outtab)) {
+  
+  for (icol in 1:min(irow,ncol(outtab))) {
+    if (outtab[irow,icol] != 0) {
+      unified <- rbind( unified, data.frame(row.names(outtab)[irow], colnames(outtab)[icol], outtab[irow,icol] ))
+    }
+    
+  }
+}
+colnames(unified) <- c("Station_1", "Station_2", "Paired_Observations")
+unified <- unified[order(unified$Paired_Observations, decreasing = TRUE),]
+kable(unified[1:20,],row.names=FALSE)
+```
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"semiMajor_v_inclination.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+## Data Quality Indicators
+
+The following plot shows the average linearity error in the processed data:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"cdeg_overall.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+The following graph shows the distribution of differences in velocity between matched observations:
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"delta_vo_overall.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```

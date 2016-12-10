@@ -13,17 +13,17 @@
 
 # Set-up JPEG
 
-par(mar=c(2.0,2.0,3.0,2.0))
-plot.new()
-
 
 MainTitle = paste("Avge linearity error (cdeg) for Single Station Obs.\n",Streamname)
 SubTitle  = DataSet
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+plot.new()
 split.screen(c(1,2))
-
 screen(1)
-
+par(mar=c(3,4,4,2))
+par(oma=c(3,4,3,2))
 h = hist(ms$X_cdeg,
      main=MainTitle,
      cex.main=0.7,
@@ -36,7 +36,9 @@ h = hist(ms$X_cdeg,
      freq=TRUE,col="blue")
 
 screen(2)
-MainTitle = paste("Avge linearity error *cdeg) for Unified Obs.\n",Streamname)
+par(mar=c(3,4,4,2))
+par(oma=c(3,4,3,2))
+MainTitle = paste("Avge linearity error (cdeg) for Unified Obs.\n",Streamname)
 h = hist(mu$X_cdeg,
          main=MainTitle,
          cex.main=0.7,

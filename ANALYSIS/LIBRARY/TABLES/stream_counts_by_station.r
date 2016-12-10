@@ -10,7 +10,7 @@
 #==================================================================
 
 # Set-up JPEG
-outfile = paste(ReportDir,"/TABLE_Stream_Counts_by_Station_",SelectStream,"_",SelectYr,".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_stream_counts_by_Station",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
 
 MainTitle = paste("Stream counts by station",Streamname)
 SubTitle  = DataSet

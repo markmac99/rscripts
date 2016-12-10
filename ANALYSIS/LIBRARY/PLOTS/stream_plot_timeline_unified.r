@@ -13,10 +13,9 @@
 
 # These paramaters set plot title
 
-MainTitle = paste("Observed stream activity",SelectInterval/60,"minutes",Streamname)
+MainTitle = paste("Observed stream activity (",SelectInterval/60," minute intervals) ",Streamname,sep="")
 SubTitle  = paste("Dataset period:",SelectStart,"to",SelectEnd)
 
-StartTime="2014-08-12 00:00"
 # Create function to 'bin' by time
 
 get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
@@ -32,6 +31,9 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
 
 maxy = 0
 Idx = 0
+
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
 
 # Plot meteor counts by individual stations
     

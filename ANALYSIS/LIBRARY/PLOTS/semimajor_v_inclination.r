@@ -13,19 +13,29 @@
 par(mai=c(1.4,1.0,1.7,0.5))
 
 mf <- mu[mu$X_a >=0,]
-plot(mf$X_a, 
-     mf$X_incl, 
-     ylim=c(0,180), 
-     xlim=c(0,150),
-     xlab="Semi-major Axis (AU)", 
-     ylab="Inclination", 
-     pch=20, 
-     cex=0.6,
-     main=paste("Semi-major axis vs Inclination \n",Streamname),
-     sub=DataSet) 
 
-
-# Tidy Up
+if (nrow(mf) > 0 ) {
+    
+    # Select and configure the output device
+    select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+    
+    plot(mf$X_a, 
+         mf$X_incl, 
+         ylim=c(0,180), 
+         xlim=c(0,150),
+         xlab="Semi-major Axis (AU)", 
+         ylab="Inclination", 
+         pch=20, 
+         cex=0.6,
+         main=paste("Semi-major axis vs Inclination \n",Streamname),
+         sub=DataSet) 
+    
+    
+    # Tidy Up
+  
+    
+} else {
+  cat("No data")
+}
 
 rm(mf)
-

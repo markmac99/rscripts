@@ -14,12 +14,11 @@
 # =================================================================
 
 QA_QA       <- 0.15     # Total Quality Assessment
-QA_e        <- 1        # Eccentricity
 QA_dv12     <- 7.0      # Velocity difference (percent)
-QA_GM       <- 80.0     # Overlap of observed trajectories (%)
+QA_GM       <- -100    # Min overlap of observed trajectories (%)
 QA_Dur      <- 0.1      # Duration (seconds)
 QA_Qo       <- 1.0      # Observed trajectory angle (degrees)
 QA_Qc       <- 10.0     # Cross angle of observed plane (degrees)
-QA_Delta_GP <- 0.5      # Difference in ground trajectory (degrees)
+QA_dGP      <- 0.5      # Difference in ground trajectory (degrees)
 QA_H1       <- 200      # Start altitude (km)
-QA_H2       <- 20       # End altitude (km)
+QA_H2       <- 15       # End altitude (km)

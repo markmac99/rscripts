@@ -9,7 +9,8 @@
 #
 # =================================================================
 
-outfile = paste(ReportDir,"/Table_Stream_Counts_",SelectStream,"_",SelectYr,".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_stream_counts",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
+
 
 outtab <- table(mu$X_stream) 
 
