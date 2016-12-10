@@ -8,8 +8,7 @@
 #
 
 #==================================================================
-outfile = paste(ReportDir,"/TABLE_station_match_correlation_",SelectStream,"_", SelectYr,".csv",sep="")
-
+outfile = paste(Set_Outfile("/TABLE_station_match_correlation",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
 
 tmp <- subset(mt,substring(mt$X_ID1,2,8) != "UNIFIED")
 tmp$X_ID2 = substr(tmp$X_ID2,2,30)

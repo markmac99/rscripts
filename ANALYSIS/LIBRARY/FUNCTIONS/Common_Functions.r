@@ -28,6 +28,18 @@
 #*******************************************************************************
 
 
+Set_Outfile <- function(Scriptfile, Yr = "NONE", Stream = "NONE") {
+#===============================================================================
+# Set directory and name of output file - create directories if needed
+#===============================================================================  
+  Ofile = sub("\\.R","\\.r",Scriptfile)
+  Ofile = sub("\\.r","",Scriptfile)
+  Path1 = file.path(ReportDir, Yr)
+  dir.create(Path1, showWarnings = FALSE)
+  Path2 = file.path(Path1, Stream)
+  dir.create(Path2, showWarnings = FALSE)    
+  return(paste(Path2,"/",Ofile,sep=""))
+}
 
 
 Runscript <- function(Scriptfile,Otype=NA, orient="port") {
@@ -41,31 +53,61 @@ Runscript <- function(Scriptfile,Otype=NA, orient="port") {
 # Define Output Macro which runs script setting output, page orientation 
 # and plot size
   
-    repeat{
-      if(dev.cur() == 1) {
-        break
-      }
-      dev.off()
+    output_type       = Otype
+    paper_width       = orient[Otype,]$width
+    paper_height      = orient[Otype,]$height
+    paper_orientation = orient[Otype,]$papr
+
+	  Outfile = Set_Outfile(Scriptfile, Yr = SelectYr, Stream = SelectStream)
+	  cat(paste("Plot:", Scriptfile)) 
+	  source(paste(PlotDir,Scriptfile,sep="/"),local=TRUE)
+	  
+	  if(dev.cur() != 1) dev.off()
+}
+
+#------------------------------------------------------------------------------
+# The following function is called by a plot script to open either a jpeg or
+# PDF device for output.  
+#
+# A call to Check_file-exists is made to delete an existing plot.  This does 
+# not seem to be necessary on all platforms but is included to cover all 
+# eventualities (acknowlegement: Steve Bosley, Hampshire Astronomy Group)
+#------------------------------------------------------------------------------
+
+select_dev <- function(Ofile, Otype = "JPG", wd=1000, ht=1000, pp="a4") { 
+
+  # Close any open devices (other than NULL)
+  repeat{
+    if(dev.cur() == 1) {
+      break
     }
-  
-    wd = orient[Otype,]$width
-    ht = orient[Otype,]$height
-    pp = orient[Otype,]$papr
+    dev.off()
+  }
 
-    Ofile = sub("\\.R","\\.r",Scriptfile)
-	Ofile = sub("\\.r",paste("_",SelectStream,"_",SelectYr,sep=""),Ofile)
-
-    if (Otype=="JPG") jpeg(filename=paste(ReportDir,"/",Ofile,".jpg",sep=""), 
-		    width = wd, height = ht, 
-        units = "px", res=150, pointsize = 12, quality = 100, bg = "white")
-    
-    if (Otype=="PDF") pdf(paste(ReportDir,"/",Ofile,".pdf",sep=""),
-        onefile=TRUE, paper=as.character(pp), 
-        width = wd, height = ht)
-
-	source(paste(PlotDir,Scriptfile,sep="/"))
-	dev.off()
- 
+  if (Otype=="JPG") {
+    Check_file_exists(paste(Ofile,".jpg",sep=""))
+    jpeg(filename=paste(Ofile,".jpg",sep=""), 
+    width = wd, height = ht, 
+    units = "px", res=150, pointsize = 12, quality = 100, bg = "white")
+    }
+  if (Otype=="PDF") { 
+    Check_file_exists(paste(Ofile,".pdf",sep=""))
+    pdf(paste(Ofile,".pdf",sep=""),
+    onefile=TRUE, paper=as.character(pp), 
+    width = wd, height = ht)
+  }
+}
+#-------------------------------------------------------------------------------
+#-- Drop file if it exists. 
+#-------------------------------------------------------------------------------
+Check_file_exists <- function(Ofile) {
+  if (file.exists(Ofile)) {
+    x <- file.remove(Ofile)
+    Sys.sleep(1)
+    cat(" (Overwrite) \n")  
+  } else {
+    cat(" (New) \n")  
+  }
 }
 
 
@@ -218,20 +260,21 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
 }
 
 
-filter_apply_qa <- function(mx, QA_e=1, QA_dv12=7.0, QA_GM=80.0, QA_Dur=0.1, QA_QA=0.15, QA_Qo=1.0, QA_Qc=10.0, QA_Delta_GP=0.5, QA_H1=200, QA_H2=20 ) {
+filter_apply_qa <- function(mx) {
   #===============================================================================
   #
   #-- Filters input data frame mx for all meteors meeting quality criteria
   #
   #===============================================================================
   #-- Filter input data frame by type (e.g. unified), stream, and year
+  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
   n_start <- nrow(mx)
   cat("\n")
   cat(paste("QA filtering:\n")) 
   cat(paste("=============\n"))    
-  my<-subset(mx, X_e <= QA_e & X_QA >= QA_QA & abs(mx$X_dv12) <= QA_dv12 & abs(mx$X_Gm) >= QA_GM & X_dur >= QA_Dur & X_H1 <= QA_H1 & X_H2 >= QA_H2 & X_Qo >= QA_Qo & X_Qc >= QA_Qc )
-  cat(paste("- e    < ",QA_e,   "\n"))   
+  my<-subset(mx, X_dGP <= QA_dGP & X_QA >= QA_QA & abs(mx$X_dv12) <= QA_dv12 & abs(mx$X_Gm) >= QA_GM & X_dur >= QA_Dur & X_H1 <= QA_H1 & X_H2 >= QA_H2 & X_Qo >= QA_Qo & X_Qc >= QA_Qc )
   cat(paste("- dc12 <=",QA_dv12,"\n")) 
+  cat(paste("- dGP  <=",QA_dGP, "\n"))
   cat(paste("- GM   >=",QA_GM,  "\n"))  
   cat(paste("- Dur  >=",QA_Dur ,"\n")) 
   cat(paste("- QA   >=",QA_QA,  "\n"))  
@@ -244,5 +287,6 @@ filter_apply_qa <- function(mx, QA_e=1, QA_dv12=7.0, QA_GM=80.0, QA_Dur=0.1, QA_
   if (n_end != 0) {pct = (100*n_end/n_start)}
   cat(paste("Rows out:",n_end,", ", round( 100 - pct ,digits=1),"% loss.\n"))    
   return (my)
-  
+  QA_Delta_GP
 }
+

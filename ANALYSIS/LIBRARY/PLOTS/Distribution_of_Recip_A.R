@@ -30,6 +30,9 @@ dfm = get.bin.counts(1 / mu$X_a, name.x = "sol",
 
 dfx = as.vector(dfm$freq)
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 dbgraph = barplot (dfx,
                        xlab="1 / a",
                        ylab="Counts",

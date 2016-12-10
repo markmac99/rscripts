@@ -74,8 +74,11 @@ The distribution comprises a set of R scripts and a reference data file organise
 |----|-----------|
 |GENERATE_REPORTS.R|Full reporting package, importing data applying quality criteria and generating tables and plots|
 |STREAM_ANALYSIS_ORBITS.R|Imports data, performs D criterion analysis against a selected reference orbit and generates an interactive 3d plot of Orbits meeting threshold criterion.|
-|QA Filter Check|Runs the QA filter function for the purposes of evaluating the drop rate|
+|QA_FILTER_CHECK|Runs the QA filter function for the purposes of evaluating the drop rate|
 |STREAM_ANALYSIS_CLASSIFY.R|Imports data, finds best match for each observation against a list of reference orbits and plots D_Criteria by stream|
+|SUMMARY_REPORT.RMD|R Markdown / knitr script to produce a summary report in HTML format for all streams and sporadics|
+|SUMMARY_REPORT_BY_STREAM.RMD|R Markdown / knitr script to produce a summary report in HTML format for a selected stream|
+|MERGE_FILES|Merges multiple UFO ORBIT output files int a single file with a single header|
 
 ### Report Libraries
 
@@ -125,9 +128,10 @@ The distribution comprises a set of R scripts and a reference data file organise
 |--------------------|--------------|--------|
 |Simple counts|List of meteors brighter than amag < -4|fireball_detect.r|
 ||Table of matched observations (count of Station A / Station B pairs)|station_match_tab_correlation.r|
+||Top 20 camera pairings|station_tab_match_top_correlation|
 ||Number of matched meteor observations by stream|stream_counts.r|
 ||Number of matched meteor observations by station|streamcounts_plot_by_station.r|
-||Number of matched meteor observations by station|stream_counts_by_year.r|
+||Number of matched meteor observations by year|stream_counts_by_year.r|
 
 
 ## Customisation

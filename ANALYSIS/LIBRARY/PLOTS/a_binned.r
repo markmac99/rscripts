@@ -16,10 +16,9 @@
 Binsize = 0.2
 Upperlim = 100
 
-MainTitle = paste("Frequency distribution of a (bin size",Binsize,")\n",Streamname)
+MainTitle = paste("Frequency distribution of Semi-Major Axis (bin size",Binsize,")\n",Streamname)
 SubTitle  = DataSet
 
-par(mar=c(2.5,3,2,1), oma=c(2,1,3,1))
 # Create function to 'bin' by time
 
 get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
@@ -36,6 +35,10 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
                          end.pt = Upperlim, 
                          bin.width = Binsize)
 
+    # Select and configure the output device
+    select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+    par(mar=c(4,4,3,1), oma=c(4,1,3,1))
+    plot.new()
     plot(dfm$a, dfm$freq, 
          type="s", 
          lwd=1, 
@@ -43,7 +46,7 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
          pch=18, 
          xaxt = "n", 
          col="red", 
-         xlab="Absolute magnitude (a)", 
+         xlab="Semi-major Axis (au)", 
          ylab="Count") 
 
 # Display plot Axis

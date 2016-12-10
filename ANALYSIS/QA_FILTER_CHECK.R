@@ -62,13 +62,24 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
             } else {
         
         # Apply Quality Criteria
+              
             mu <- filter_apply_qa(mu)
             
+            cat("Summary of filtering:\n")
+            cat("=====================\n")
+            cat(paste("Fail: QA_dGP ",   nrow(mt[mt$X_dGP  > QA_dGP,]), "rows\n"))
+            cat(paste("Fail: QA_QA  ",   nrow(mt[mt$X_QA   < QA_QA,]),  "rows\n"))
+            cat(paste("Fail: QA_dv12",   nrow(mt[mt$X_dv12 > QA_dv12,]),"rows\n"))
+            cat(paste("Fail: QA_GM  ",   nrow(mt[mt$X_Gm   < QA_GM,]),  "rows\n"))
+            cat(paste("Fail: QA_Dur ",   nrow(mt[mt$X_dur  < QA_Dur,]), "rows\n"))
+            cat(paste("Fail: QA_H1  ",   nrow(mt[mt$X_H1   > QA_H1,]),  "rows\n"))
+            cat(paste("Fail: QA_H2  ",   nrow(mt[mt$X_H2   < QA_H2,]),  "rows\n"))      
+            cat(paste("Fail: QA_Qc  ",   nrow(mt[mt$X_Qc   < QA_Qc,]),  "rows\n"))
+
             if (! Apply_QA) {
                 cat("Note: QA filtering is currently disabled")
             } 
-      }
-  
+            }
 }  
     
     

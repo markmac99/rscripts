@@ -34,6 +34,9 @@ get.bin.counts = function(x, name.x = "x", start.pt, end.pt, bin.width){
 maxy = 0
 Idx = 0
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 # Plot meteor counts by individual stations
    
     dfm = get.bin.counts(mu$X_sol, name.x = "time", 

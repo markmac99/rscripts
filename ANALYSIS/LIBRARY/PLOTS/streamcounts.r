@@ -24,11 +24,12 @@ tmptab <- sort(tmptab, decreasing=TRUE)
 tmpmat <-as.matrix(tmptab)
 tmpmat <- tmpmat[1:min(10,nrow(tmpmat)),]
 
-
-
 # Coerce to Dataframe to plot
 
 tmpmat <-as.matrix(tmpmat)
+
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
 
 bgraph <- barplot(t(tmpmat),
             xlab="Meteor counts",horiz=TRUE,

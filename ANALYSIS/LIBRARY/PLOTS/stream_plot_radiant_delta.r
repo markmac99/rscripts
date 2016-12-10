@@ -12,14 +12,21 @@
 #
 #------------------------------------------------------
 
-bins=seq(as.integer(min(mu$X_dr))-1,as.integer(max(mu$X_dr))+1,by=0.2)
-hist(mu$X_dr,
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
+abs_dr <- abs(mu$X_dr)
+bins=seq(0,as.integer(max(abs(abs_dr)))+1,by=0.2)
+
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
+hist(abs_dr,
      breaks=bins,
-#     border = NA,
      col="blue", 
-     xlab="Magnitude",
+     xlab="Distance (degrees)",
      ylab="count",
-     xlim = c(0,as.integer(max(mu$X_dr))+1),
+     xlim = c(0,as.integer(max(abs_dr))+1),
      main=paste("Distance from Radiant",Streamname),
      sub=DataSet)
 

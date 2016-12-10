@@ -10,6 +10,10 @@
 #
 #------------------------------------------------------
 
+
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 par(mai=c(1.0,1.0,0.5,0.5))
 
 plot(mu$X_amag, 

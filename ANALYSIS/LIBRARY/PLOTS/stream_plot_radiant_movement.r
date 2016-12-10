@@ -10,17 +10,22 @@
 #
 #------------------------------------------------------
 
-par(mai=c(1.0,1.0,0.5,0.5))
+# Select and configure the output device
+
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+par(oma=c(2,2,2,1))
+par(mar=c(2,2,2,1))
 plot.new()
+
 # Setup screens
 split.screen(c(1,2))
 split.screen(c(2,1),screen=1)
 
 screen(3)
-par(mai=c(1.0,1.0,0.7,0.7))
+
 plot(mu$X_sol, 
      mu$X_ra_t, 
-     main=paste("Solar Longitude of observed time vs RA / H2",Streamname), 
+     main=paste("Solar Long. vs RA",Streamname), 
      ylab="RA (modified)", 
      xlab="Solar Longitude", 
      pch=20,
@@ -32,10 +37,10 @@ plot(mu$X_sol,
      sub=paste(DataSet))
 
 screen(4)
-par(mai=c(1.0,1.0,0.7,0.7))
+
 plot(mu$X_sol, 
      mu$X_dc_t, 
-     main=paste("Solar Longitude of observed time vs Dec / H2",Streamname), 
+     main=paste("Solar Long. vs Dec",Streamname), 
      ylab="Dec (modified)", 
      xlab="Solar Longitude", 
      pch=20,
@@ -47,7 +52,7 @@ plot(mu$X_sol,
      sub=paste(DataSet)) 
 
 screen(2)
-par(mai=c(0.7,0.7,0.7,0.7))
+
 library(scatterplot3d)
 scatterplot3d(mu$X_sol,mu$X_ra_t,mu$X_dc_t,
               ylab="Ra (modified)", 
@@ -58,6 +63,7 @@ scatterplot3d(mu$X_sol,mu$X_ra_t,mu$X_dc_t,
               cex.lab=0.8,
               cex.axis=0.8,
               cex.sub = 0.8,
-              main=paste("Solar Longitude of observed time vs RA and Dec",Streamname), 
+              main=paste("Solar Long vs RA and Dec",Streamname), 
               sub=paste(DataSet)
 	      )
+close.screen(all = TRUE)

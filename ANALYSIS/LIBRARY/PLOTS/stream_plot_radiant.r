@@ -11,6 +11,9 @@
 #
 #------------------------------------------------------
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 plot(mu$X_ra_o, mu$X_dc_o,
      main=paste("Radiant plot",Streamname), 
      sub=DataSet,

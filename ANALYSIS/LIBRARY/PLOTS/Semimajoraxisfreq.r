@@ -10,22 +10,33 @@
 #
 #------------------------------------------------------
 
-par(mai=c(1.0,1.0,0.5,0.5))
 
 prange = 20
 mf <- subset(mu,X_a <= prange & X_a >= 0)
-if (max(mf$X_a) < prange) prange = max(mf$X_a) 
 
-bins=seq(0,prange+1,by=0.5)
-hist(mf$X_a,
-     breaks=bins, 
-     col="blue", 
-     xlab="Semimajor Axis (AU)", 
-     ylab="count", 
-     main=paste("Semimajor Axis Frequency Distribution",Streamname),
-     sub = DataSet)
+if (nrow(mf) > 0) {
+  
+    # Select and configure the output device
+    select_dev(Outfile, Otype=output_type, wd=paper_width, ht=paper_height, pp=paper_orientation)
 
-# Tidy up
+    par(mar=c(5,4,2,2))
+    par(oma=c(2,3,2,2))
+        
+      if (max(mf$X_a) < prange) prange = max(mf$X_a) 
+    
+    bins=seq(0,prange+1,by=0.5)
+    hist(mf$X_a,
+         breaks=bins, 
+         col="blue", 
+         xlab="Semimajor Axis (AU)", 
+         ylab="count", 
+         main=paste("Semimajor Axis Frequency Distribution","\n",Streamname),
+         sub = DataSet)
+    
+    # Tidy up
+    rm(bins)
+
+} else {
+  cat(" *** No data in range, plot skipped")
+}
 rm(mf)
-rm(bins)
-

@@ -19,16 +19,27 @@ par(mai=c(1.0,1.0,0.5,0.5))
 
 mf = subset(mu,mu$X_vo>=0 & mu$X_vo<=120)
 
-# PLOT ALL Stream by velocity
-    bins=seq(0,120,by=0.5)
-    hist(mf$X_vo,
-         breaks=bins, 
-         col="blue", 
-         xlab="Velocity (km/s)", 
-         ylab="count", 
-         main=paste("Velocity distribution", Streamname),
-         sub=DataSet)
 
-# Tidy up
+if (nrow(mf) > 0 ) {
+  
+  # Select and configure the output device
+  select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+  
+    
+    # PLOT ALL Stream by velocity
+        bins=seq(0,120,by=0.5)
+        hist(mf$X_vo,
+             breaks=bins, 
+             col="blue", 
+             xlab="Velocity (km/s)", 
+             ylab="count", 
+             main=paste("Velocity distribution", Streamname),
+             sub=DataSet)
+    
+    # Tidy up
+    rm(bins)
+
+} else {
+  cat(" *** No data - plot skipped ")
+}
 rm(mf)
-rm(bins)

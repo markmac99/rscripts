@@ -31,6 +31,9 @@ dfm = get.bin.counts(mu$X_sol, name.x = "sol",
 
 dfx = as.vector(dfm$freq)
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 dbgraph = barplot (dfx, 
                        xlab="Solar Longitude",
                        ylab="Counts",

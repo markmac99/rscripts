@@ -24,6 +24,9 @@ MainTitle = paste("Counts of unified observations by station",Streamname)
 
 outtab <- t(as.matrix(sort(table(ms$X_ID1),decreasing=TRUE)))
 
+# Select and configure the output device
+select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+
 h = barplot(outtab,
          main=MainTitle,
          ylab = "Counts",

@@ -46,13 +46,25 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
 
 # Initialise environment variables and common functions
 
-  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
   source("~/ANALYSIS/CONFIG/Lib_Config.r")
   source(paste(FuncDir,"/common_functions.r",sep=""))
 
-  cat("\n",
-      "Output type:       ",OutType,"\n",
-      "QA filter enabled: ",Apply_QA,"\n\n",sep="")
+  runtime = format(Sys.time(),"%Y%m%d_%H%M")
+
+# Close any open graphical output devices (other than NULL)
+  repeat{
+    if(dev.cur() == 1) {
+      break
+    }
+    dev.off()
+  }
+
+  # Select Output Type
+  if (is.na(OutType)) {
+    Olist = c("PDF","JPG")
+    i <- menu(Olist, graphics=TRUE, title="Choose output type")
+    OutType = Olist[i]
+  }
   
 # Set the R working directory (this is where R saves its environment)
 
@@ -61,6 +73,20 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
 # Read UNIFIED CSV file created by UFO Orbit (all columns are read) and standardise data
 
     mt <- read_ufo()
+    
+    # Following is a quick fix to a UFO data Issue
+    if (is.factor(mt$X_amag)) {
+      cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
+      mt$X_amag <- as.numeric(as.character(mt$X_amag))
+      mt <- mt[!is.na(mt$X_amag),]
+    }
+    
+    if (is.factor(mt$X_QA)) {
+      cat("Note: Problem detected in input data - QA converted from factor to numeric")
+      mt$X_QA <- as.numeric(as.character(mt$X_QA))
+      mt <- mt[!is.na(mt$X_QA),]
+    }
+    
     rows_read <- nrow(mt)
     if (rows_read == 0) {
         stop("No data in input file")
@@ -87,7 +113,7 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
         ms <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
     
         if (nrow(mu) == 0) {
-            stop("No UNIFIED observations were found in the input data")
+            stop(paste("No UNIFIED observations for stream",SelectStream,"were found in the input data"))
             } else {
         
         # Apply Quality Criteria
@@ -106,7 +132,9 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
                 DataSet=paste("Dataset:",SelectStream,"period",substring(min(mu$X_local),1,10),"to",substring(max(mu$X_local),1,10))
             
             # Generate generic plots
-            
+            cat("\n",
+                "Output type:       ",OutType,"\n",
+                "QA filter enabled: ",Apply_QA,"\n\n",sep="")            
             Runscript("stream_plot_by_correllation.r",Otype=OutType,orient=Landscape)
             Runscript("stream_plot_mag.r",Otype=OutType,orient=Landscape)
             Runscript("stream_plot_vel.r",Otype=OutType,orient=Landscape)
@@ -138,7 +166,7 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
                     Runscript("stream_plot_radiant.r",Otype=OutType,orient=Landscape)
                     Runscript("stream_plot_radiant_delta.r",Otype=OutType,orient=Landscape)
                 } else {
-                	cat(paste("*** Stream-only plots have been excluded","\n"))
+                	cat(paste("Note: Stream-only plots have been excluded","\n"))
                 }
             
             # Run scripts relevant only to "ALL streams" plots
@@ -151,7 +179,7 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
                     Runscript("observed_trajectory_LD21_by_stream.r",Otype="PDF",orient=Landscape)                       
         
                 } else {
-                	cat(paste("*** Plots for ALL have been excluded","\n"))
+                	cat(paste("Note: Plots for ALL have been excluded","\n"))
                 }
             
             # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
@@ -160,16 +188,17 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
                 	Runscript("Streamcounts_plot_by_station.r",Otype=OutType,orient=Landscape)
                 	Runscript("delta_vo_overall.r",Otype=OutType,orient=Landscape)
                 	Runscript("delta_vo_by_station.r",Otype="PDF",orient=Landscape)
-                	Runscript("qa_overall.r",Otype=OutType,orient=Landscape)
                 	Runscript("qa_by_station.r",Otype="PDF",orient=Landscape)
+                	Runscript("qa_overall.r",Otype=OutType,orient=Landscape)
                 	Runscript("cdeg_overall.r",Otype=OutType,orient=Landscape)
                 	Runscript("cdeg_by_station.r",Otype="PDF",orient=Landscape)
                 	#-- Table outputs
                 	source(paste(TabsDir,"station_tab_match_correlation.r",sep="/"))
                 	source(paste(TabsDir,"stream_counts_by_station.r",sep="/")) 
                 	source(paste(TabsDir,"stream_counts.r",sep="/"))
+                	source(paste(TabsDir,"station_tab_match_top_correlation.r",sep="/"))
                 } else {    
-                	cat(paste("*** No Station data in source data (Unified only)","\n"))
+                	cat(paste("Note: No Station data in source data (Unified only)","\n"))
                 }
             
              cat("Run complete",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))

@@ -17,18 +17,25 @@ par(mai=c(1.0,1.0,0.5,0.5))
 
 mf = subset(mu,X_amag >= -7 & X_amag <= 7)
 
-# PLOT ALL Stream by mag
-	bins=seq(as.integer(min(mf$X_amag))-1,as.integer(max(mf$X_amag))+1,by=0.2)
-	hist(mf$X_amag,
-         breaks=bins,
-         border = NA,
-         col="red", 
-         xlab="Magnitude",
-         ylab="count",
-         xlim = c(-7,7),
-         main=paste("Magnitude distribution",Streamname),
-         sub=DataSet)
+if (nrow(mf) > 0) {
 
-rm(bins)
+    # Select and configure the output device
+    select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
+    
+    # PLOT Stream by mag
+    	bins=seq(as.integer(min(mf$X_amag))-1,as.integer(max(mf$X_amag))+1,by=0.2)
+    	hist(mf$X_amag,
+             breaks=bins,
+             border = NA,
+             col="red", 
+             xlab="Magnitude",
+             ylab="count",
+             xlim = c(-7,7),
+             main=paste("Magnitude distribution",Streamname),
+             sub=DataSet)
+    
+    rm(bins)
+} else {
+    cat("No data")
+}
 rm(mf)
-
