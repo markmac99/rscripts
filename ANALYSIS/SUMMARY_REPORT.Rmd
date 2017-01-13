@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 ```{r comment_block, echo = FALSE}
 #=============================================================================
 #
@@ -246,10 +249,12 @@ box(which="plot",lty="solid")
 The top 10 brightest fireballs were:
 
 ```{r magtab, echo=FALSE}
-fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream")]
+fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream","X_ID1")]
+fireball$X_matches <- ifelse(substr(fireball$X_ID1,10,10)=="0",substr(fireball$X_ID1,11,11),substr(fireball$X_ID1,10,11))
+fireball <- fireball[, c("X_localtime","X_mag","X_stream","X_matches")]
 fireball <- fireball[order(fireball$X_mag),]
 maxrow = min(nrow(fireball),10)
-colnames(fireball) <- c("Datetime","Magnitude", "Stream")
+colnames(fireball) <- c("Datetime","Magnitude", "Stream","Station matches")
 kable(fireball[1:maxrow,],row.names=FALSE)
 ```
 
@@ -281,7 +286,7 @@ The altitudes at which ablation was visible is shown in the plot below
 source(paste(PlotDir,"stream_ablation.r",sep="/"),local=TRUE)
 ```
 
-The maximum start heigh was `r sprintf("%.1f",max(mu$X_H1))` km and the minimum end height was `r sprintf("%.1f",min(mu$X_H2))` km.  The distribution of distances travelled through the ablation zone was as follows:
+The maximum start height was `r sprintf("%.1f",max(mu$X_H1))` km and the minimum end height was `r sprintf("%.1f",min(mu$X_H2))` km.  The distribution of distances travelled through the ablation zone was as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"observed_trajectory_LD21.r",sep="/"),local=TRUE)

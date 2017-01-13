@@ -183,6 +183,13 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
                 }
             
             # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
+            # and the selected report is a Stream Report
+            
+            if (nrow(ms) != 0 & SelectStream != "ALL"  & SelectStream != "SPO") {
+                  Runscript("stream_plot_timeline_single.r",Otype=OutType,orient=Landscape)
+            }
+            
+            # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
             
             if (nrow(ms) != 0) {
                 	Runscript("Streamcounts_plot_by_station.r",Otype=OutType,orient=Landscape)
