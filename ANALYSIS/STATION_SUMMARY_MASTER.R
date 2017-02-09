@@ -16,6 +16,7 @@
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
+#   1.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
 #   1.0   19/01/2016    First release
 #
 #=============================================================================
@@ -44,7 +45,13 @@ stations <- list(
 
 library(xtable)
 library(knitr)
-source("~/ANALYSIS/CONFIG/Lib_Config.r")
+library(tcltk)
+
+
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
+source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
 
 read_ufo <- function(mx) {
   #===============================================================================
@@ -63,7 +70,7 @@ read_ufo <- function(mx) {
                  dimnames = list(c("csv"),c("V1","V2")))
   
   if (is.na(SourceUnified)) {
-    infile <- choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
+    infile <- tk_choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
   } else {
     infile <- paste(DataDir,SourceUnified,sep="/")
   }
@@ -149,7 +156,7 @@ read_ufo <- function(mx) {
        
        # Produce report
        
-        rmarkdown::render('~/ANALYSIS/STATION_SUMMARY_KNITR.rmd',envir=knitrenv,output_dir=ReportDir, output_file=paste(SelectStation,".html",sep="")) 
+        rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=ReportDir, output_file=paste(SelectStation,".html",sep="")) 
         }
     }
   }

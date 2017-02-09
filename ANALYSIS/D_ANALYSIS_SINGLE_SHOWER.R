@@ -23,11 +23,16 @@
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
+#   2.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
 #   2.0   20/10/2016    Defects resolved, Disable / enable QA filter option added
 #   1.0   03/12/2016    First release
 #
 #
 #=============================================================================
+
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
 
 Stream      <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
 d_threshold = 0.8
@@ -37,7 +42,7 @@ D_Type      = "DD"
 
 # Initialise environment variables and common functions
 
-    source("~/ANALYSIS/CONFIG/Lib_Config.r")
+    source(paste(root, "/CONFIG/Lib_Config.r", sep=""))
     source(paste(FuncDir,"/common_functions.r",sep=""))
     source(paste(FuncDir,"/D_Criteria.r",sep=""))
     

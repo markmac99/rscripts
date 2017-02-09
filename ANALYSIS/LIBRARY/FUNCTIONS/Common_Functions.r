@@ -21,12 +21,14 @@
 #
 #   Vers  Date    Notes
 #   ----  ----    -----
+#   1.2   09/02/2016  Changes to improve MacOS compatibility
 #   1.1   20/09/2016  Added Quality Criteria filter function
 #   1.0   15/11/2015  First release
 #
 #
 #*******************************************************************************
 
+library(tcltk)
 
 Set_Outfile <- function(Scriptfile, Yr = "NONE", Stream = "NONE") {
 #===============================================================================
@@ -184,7 +186,7 @@ read_ufo <- function(mx) {
             dimnames = list(c("csv"),c("V1","V2")))
     
 if (is.na(SourceUnified)) {
-        infile <- choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
+        infile <- tk_choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
 	} else {
         infile <- paste(DataDir,SourceUnified,sep="/")
 	}
@@ -267,7 +269,7 @@ filter_apply_qa <- function(mx) {
   #
   #===============================================================================
   #-- Filter input data frame by type (e.g. unified), stream, and year
-  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
+  source(paste(root,"/CONFIG/Lib_QA.r", sep="")) 
   n_start <- nrow(mx)
   cat("\n")
   cat(paste("QA filtering:\n")) 

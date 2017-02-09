@@ -11,6 +11,7 @@
 #-- Version History
 #  ----------------
 #   Vers  Date          Note
+#   1.1   09/02/2016    Changes to improve MacOS compatibility
 #   1.0   12/12/2015    First release
 #
 # =================================================================
@@ -54,10 +55,6 @@ SelectIntervalSol = 0.01    # in degrees solar longitude
 OutType  = NA       # Force dialogue
 #OutType = "JPG"    # Force JPEG
 #OutType = "PDF"    # Force PDF
-
-#-- Filesystem parameters
-
-root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
 
 #-- Analysis folders
 

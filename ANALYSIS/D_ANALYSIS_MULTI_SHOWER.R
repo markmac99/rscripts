@@ -29,21 +29,25 @@
 #
 #=============================================================================
 
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
+
 d_threshold = 0.8
 Plot_title  = "Perseids (EDMOND dataset: 2001 to 2015)"
 Binsize     = 0.002
 D_Type      = "DD"
-J_catalog   = "~/ANALYSIS/CONFIG/j8.csv"
+J_catalog   = paste(root,"~/ANALYSIS/CONFIG/j8.csv",sep="")
 
 # Initialise environment variables and common functions
 
-    source("~/ANALYSIS/CONFIG/Lib_Config.r")
+    source(paste(root,"/ANALYSIS/CONFIG/Lib_Config.r",sp=""))
     source(paste(FuncDir,"/common_functions.r",sep=""))
     source(paste(FuncDir,"/D_Criteria.r",sep=""))
     
 # Import stream data
   streamlist = read.csv(J_catalog, header=TRUE)
-  streamlist <- streamlist[!is.na(streamlist$X_name) & !(streamlist$X_name ==),]
+  streamlist <- streamlist[!is.na(streamlist$X_name) & !(streamlist$X_name =="SPO"),]
 
 # Set the R working directory (this is where R saves its environment)
 

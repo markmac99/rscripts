@@ -29,6 +29,11 @@ output: html_document
 
 ```{r select_parameters, echo = FALSE}
 
+
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
+
 # Set report selection criteria
 
 SelectYr      = 2014
@@ -46,7 +51,7 @@ library(knitr)
 ```
 
 ```{r configure, echo = FALSE}
-source("~/ANALYSIS/CONFIG/Lib_Config.r")
+source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
 ```
 
 ```{r define_macros, echo=FALSE}
@@ -58,7 +63,7 @@ filter_apply_qa <- function(mx) {
   #
   #===============================================================================
   #-- Filter input data frame by type (e.g. unified), stream, and year
-  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
+  source(paste(root,"/CONFIG/Lib_QA.r",sep="")) 
   n_start <- nrow(mx)
   cat("\n")
   cat(paste("QA filtering:\n")) 
@@ -106,7 +111,7 @@ read_ufo <- function(mx) {
 #
 #===============================================================================
 
-# - Read UFO Orbit data file
+library(tcltk)
     
 # setup filter
     filt <- matrix(c("Comma separated / Excel files","*.csv"), 
@@ -114,7 +119,7 @@ read_ufo <- function(mx) {
             dimnames = list(c("csv"),c("V1","V2")))
     
 if (is.na(SourceUnified)) {
-        infile <- choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
+        infile <- tk_choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
 	} else {
         infile <- paste(DataDir,SourceUnified,sep="/")
 	}

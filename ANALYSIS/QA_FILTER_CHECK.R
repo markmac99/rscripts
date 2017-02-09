@@ -13,16 +13,21 @@
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
+#   1.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
 #   1.0   03/12/2016    First release
 #
 #=============================================================================
 
 cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
 
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
+
 # Initialise environment variables and common functions
 
-  source("~/ANALYSIS/CONFIG/Lib_QA.r") 
-  source("~/ANALYSIS/CONFIG/Lib_Config.r")
+  source(paste(root,"/ANALYSIS/CONFIG/Lib_QA.r", sep="")) 
+  source(paste(root,"/ANALYSIS/CONFIG/Lib_Config.r", sep=""))
   source(paste(FuncDir,"/common_functions.r",sep=""))
 
   cat("\n",

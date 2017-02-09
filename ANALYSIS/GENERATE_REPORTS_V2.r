@@ -36,17 +36,22 @@
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
+#   2.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
 #   2.0   20/10/2016    Defects resolved, Disable / enable QA filter option added
 #   1.1   20/09/2016    Added QA criteria function call 
 #   1.0   03/12/2016    First release
 #
 #=============================================================================
 
+#-- Filesystem parameters
+
+root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
+
 cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
 
 # Initialise environment variables and common functions
 
-  source("~/ANALYSIS/CONFIG/Lib_Config.r")
+  source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
   source(paste(FuncDir,"/common_functions.r",sep=""))
 
   runtime = format(Sys.time(),"%Y%m%d_%H%M")
@@ -104,13 +109,16 @@ cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
         SelectStream = stream[1,]
         Streamname   = stream[2,]
         Solpeak      = as.numeric(stream[3,])
-        SelectStart  = stream[4,]
-        SelectEnd    = stream[5,]
+#        SelectStart  = stream[4,]
+#        SelectEnd    = stream[5,]
     
     # Get UNIFIED and Single observations
     
         mu <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="UNIFIED")
         ms <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
+        
+        SelectStart = min(mu$X_localtime - 24*60*60)
+        SelectEnd = max(mu$X_localtime + 24*60*60)
     
         if (nrow(mu) == 0) {
             stop(paste("No UNIFIED observations for stream",SelectStream,"were found in the input data"))
