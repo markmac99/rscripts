@@ -305,6 +305,11 @@ source(paste(PlotDir,"semimajor_v_ascending.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"semiMajor_v_inclination.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
 ## Data matching
 
 The following table shows the camera pairings that are producing the highest number of unified observations.
@@ -327,11 +332,6 @@ for (irow in 1: nrow(outtab)) {
 colnames(unified) <- c("Station_1", "Station_2", "Paired_Observations")
 unified <- unified[order(unified$Paired_Observations, decreasing = TRUE),]
 kable(unified[1:20,],row.names=FALSE)
-```
-
-```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
-source(paste(PlotDir,"semiMajor_v_inclination.r",sep="/"),local=TRUE)
-box(which="plot",lty="solid")
 ```
 
 ## Data Quality Indicators
