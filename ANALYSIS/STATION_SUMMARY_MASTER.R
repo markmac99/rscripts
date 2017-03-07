@@ -125,10 +125,10 @@ read_ufo <- function(mx) {
   } 
   
   loop_max = length(stations) / 2
+  knitrenv <- new.env()
   assign("stations",stations, envir=knitrenv)
   assign("CurrentYr",CurrentYr, envir=knitrenv)
-  knitrenv <- new.env()
-  
+
   # For each station in the list, print report
   
   for (i in 1:loop_max) {
