@@ -21,8 +21,9 @@ output: html_document
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
-#   2.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
-#   1.0   07/12/2016    First release
+#   1.2   14/03/2017    Improved narrative and bug fixes
+#   1.1   09/02/2017    Moved root path from config file to improve MacOS compatibility
+#   1.0   07/12/201y    First release
 #
 #=============================================================================
 ```
@@ -41,6 +42,7 @@ Streamname    = "Perseids"
 Solpeak       = 139.212097	
 SelectStart   = "2014/08/11 18:18"
 SelectEnd     = "2014/08/14 08:08"
+Apply_QA      = FALSE
 ```
 
 
@@ -217,28 +219,28 @@ date: 27 Nov 2016
 
 # Summary of activity
 
-A total of `r nrow(ms)` individual `r Streamname` observations were recorded.   The number of `r Streamname` observations recorded by individual stations is as follows:
+After processing of data by UFO_ORBIT and applying appropriate quality criteria, a total of `r nrow(ms)` `r Streamname` observations were recorded by indvidual stations which which could be matched with more than one station. the following graph shows matched observation counts by station:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"Streamcounts_plot_by_station.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-After processing, the number of unified observations meeting quality criteria as a percentage of individual observations was `r rows_to_process` from `r nrow(ms)` individual station observations (`r sprintf("%.1f",100*rows_to_process/nrow(ms))`)%.  
+The number of unified observations meeting quality criteria as a percentage of individual observations was `r rows_to_process` from `r nrow(ms)` individual station observations (`r sprintf("%.1f",100*rows_to_process/nrow(ms))`)%.  
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_by_correllation.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The number of individual station observations over time is as follows:
+The number of (matched) individual station observations over time is as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_timeline_single.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The number of unified observations over time is as follows:
+The number of matched observations over time is as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_timeline_unified.r",sep="/"),local=TRUE)
@@ -248,6 +250,8 @@ box(which="plot",lty="solid")
 
 ## Velocity distribution of `r Streamname`
 
+The graph below shows the distribution of velocities for the `r Streamname`. 
+
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_vel.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
@@ -255,12 +259,14 @@ box(which="plot",lty="solid")
 
 ## Magnitudes 
 
-The following graphs show the distribution of velocities and magnitudes for the `r Streamname` is shown below:
+The graph below shows the distribution of magnitudes for the `r Streamname`:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_mag.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
+
+The following graph shows the relationship between start and end heights of the observed `r Streamname` meteors and their absolute magnitudes:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"abs_magnitude_vs_h1_h2_reg.r",sep="/"),local=TRUE)
