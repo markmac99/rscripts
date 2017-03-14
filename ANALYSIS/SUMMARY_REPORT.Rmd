@@ -11,16 +11,17 @@ output: html_document
 #
 #   This script is an R Markdown / Knitr script that produces a summary report
 #   for all meteor stereams and sporadics.  It uses generic report scripts
-#   from the UKMON R Reporting suite.  Using Knitr the report is output as a
+#   from the UKMON R Reporting suite.  Using Knitr the report is output as a 
 #   Single HTML file with embedded images.
 #
-#-- Shared under the Creative Common  Non Commercial Sharealike
+#-- Shared under the Creative Common  Non Commercial Sharealike 
 #   License V4.0 (www.creativecommons.org/licebses/by-nc-sa/4.0/)
 #
 #-- Version history
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
+#   1.1   14/03/2017    Report on SINGLE obs as well as UNIFIED data
 #   1.0   07/12/2016    First release
 #
 #=============================================================================
@@ -36,18 +37,19 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2014
+SelectYr      = 2016
 SelectStream  = "ALL"
 Streamname    = ""
-Solpeak       = 139.212097
-SelectStart   = "2014/08/11 18:18"
-SelectEnd     = "2014/08/14 08:08"
+Solpeak       = 139.212097	
+SelectStart   = "2016/01/02 18:18"
+SelectEnd     = "2016/12/31 08:08"
 ```
 
 ```{r setup_libraries, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(xtable)
 library(knitr)
+library(tcltk)
 ```
 
 ```{r configure, echo = FALSE}
@@ -63,21 +65,21 @@ filter_apply_qa <- function(mx) {
   #
   #===============================================================================
   #-- Filter input data frame by type (e.g. unified), stream, and year
-  source(paste(root,"/CONFIG/Lib_QA.r",sep=""))
+  source(paste(root,"/CONFIG/Lib_QA.r",sep="")) 
   n_start <- nrow(mx)
   cat("\n")
-  cat(paste("QA filtering:\n"))
+  cat(paste("QA filtering:\n")) 
   cat(paste("=============\n"))    
   my<-subset(mx, X_dGP <= QA_dGP & X_QA >= QA_QA & abs(mx$X_dv12) <= QA_dv12 & abs(mx$X_Gm) >= QA_GM & X_dur >= QA_Dur & X_H1 <= QA_H1 & X_H2 >= QA_H2 & X_Qo >= QA_Qo & X_Qc >= QA_Qc )
-  cat(paste("- dc12 <=",QA_dv12,"\n"))
+  cat(paste("- dc12 <=",QA_dv12,"\n")) 
   cat(paste("  dGP  <=",QA_dGP, "\n"))
   cat(paste("- GM   >=",QA_GM,  "\n"))  
-  cat(paste("- Dur  >=",QA_Dur ,"\n"))
+  cat(paste("- Dur  >=",QA_Dur ,"\n")) 
   cat(paste("- QA   >=",QA_QA,  "\n"))  
-  cat(paste("- Qo   >=",QA_Qo,  "\n"))
+  cat(paste("- Qo   >=",QA_Qo,  "\n")) 
   cat(paste("- Qc   >=",QA_Qc,  "\n"))  
   cat(paste("- H1   <=",QA_H1,  "\n"))  
-  cat(paste("- H2   >=",QA_H2,  "\n\n"))
+  cat(paste("- H2   >=",QA_H2,  "\n\n")) 
   n_end <- nrow(my)
   pct = 0
   if (n_end != 0) {pct = (100*n_end/n_start)}
@@ -102,80 +104,59 @@ filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
     return (my)
 }
 
-read_ufo <- function(mx) {
-#===============================================================================
-#
-#-- Presents file picker filtered for CSV files (if no preconfigured input file)
-#-- Ingests file
-#-- Standardises data
-#
-#===============================================================================
-
-library(tcltk)
-
-# setup filter
-    filt <- matrix(c("Comma separated / Excel files","*.csv"),
-            nrow = 1, ncol = 2, byrow = TRUE,
-            dimnames = list(c("csv"),c("V1","V2")))
-
-if (is.na(SourceUnified)) {
-        infile <- tk_choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
-	} else {
-        infile <- paste(DataDir,SourceUnified,sep="/")
-	}
-
-if (infile == "") stop
-
-# --- Read the UFO data file
-
-# Read raw data
-    mt <- read.csv(infile, header=TRUE)
-
-# Standardise ID1
-    mt$X_ID1<- substring(mt$X_ID1,2)
-
-# standardise localtime
-    mt$X_localtime <- as.POSIXct(strptime(mt$X_localtime, "_%Y%m%d_%H%M%S"))
-
-# remove NA localtimes if any
-    mt <- subset(mt, ! is.na(X_localtime))
-
-# Standardise streamname
-    mt$X_stream <- toupper(ifelse(substring(mt$X_stream,1,2)=="_J",substring(mt$X_stream,5),substring(mt$X_stream,2)))
-
-return (mt)
-
-}
-
 ```
 
 ```{r get_data, echo=FALSE}
 
 OutType       = "CON"
 runtime = format(Sys.time(),"%Y%m%d_%H%M")
+  
+SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
+SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File   
+  
+# - Read UFO Orbit data file
+    
+indir <- tk_choose.dir(caption = "Select source directory")
+infile1 <- paste(indir,"/",SourceUnified,sep = "")
+infile2 <- paste(indir,"/",SourceSingle,sep = "")
 
-mt <- read_ufo()
+# --- Read the UFO data filea
+mt <- read.csv(infile1, header=TRUE)
+mm <- read.csv(infile2, header=TRUE)
 
+# Standardise UNIFIED data
+    mt$X_ID1<- substring(mt$X_ID1,2)
+    mt$X_localtime <- as.POSIXct(strptime(mt$X_localtime, "_%Y%m%d_%H%M%S"))
+    mt <- subset(mt, ! is.na(X_localtime))
+    mt$X_stream <- toupper(ifelse(substring(mt$X_stream,1,2)=="_J",substring(mt$X_stream,5),substring(mt$X_stream,2)))
+    
+# Standardise SINGLETON data
+    mm$X_ID1<- substring(mm$X_ID1,2)
+    mm$X_localtime <- as.POSIXct(strptime(mm$X_localtime, "_%Y%m%d_%H%M%S"))
+    mm <- subset(mm, ! is.na(X_localtime))
+    mm$X_stream <- toupper(ifelse(substring(mm$X_stream,1,2)=="_J",substring(mm$X_stream,5),substring(mm$X_stream,2)))
+    
 if (is.factor(mt$X_amag)) {
   cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
   mt$X_amag <- as.numeric(as.character(mt$X_amag))
   mt <- mt[!is.na(mt$X_amag),]
   }
-
+    
 if (is.factor(mt$X_QA)) {
   cat("Note: Problem detected in input data - QA converted from factor to numeric")
   mt$X_QA <- as.numeric(as.character(mt$X_QA))
   mt <- mt[!is.na(mt$X_QA),]
   }
-
+    
 rows_read <- nrow(mt)
     if (rows_read == 0) {
         stop("No data in input file")
-    }
+    } 
 
 mu <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="UNIFIED")
 ms <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
-
+mo <- filter_stream(mm, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
+    
 if (nrow(mu) == 0) {
     stop(paste("No UNIFIED observations for stream",SelectStream,"were found in the input data"))
     } else {
@@ -186,23 +167,23 @@ if (nrow(mu) == 0) {
             if (rows_to_process == 0) {
               stop ("No data to process - check / adjust QA filter settings")
             } else {
-
+            
             # Set dataset title
-
+            
                 paste("Dataset:",SelectStream,"period",substring(min(mu$X_local),1,10),"to",substring(max(mu$X_local),1,10))
-
+            
 
 
             # Run scripts relevant only to "ALL streams" plots
-
+            
 
           }
-
+    
     }
 DataSet <- ""
 select_dev <- function(Outfile=NA, Otype=NA, wd=NA, ht=NA, pp=NA)
  {
-
+  
 }
 
 ```
@@ -215,21 +196,46 @@ date: 27 Nov 2016
 
 # Summary of activity
 
-A total of `r nrow(ms)` individual meteor observations were recorded. The number of observations recorded by individual stations is as follows:
+In `r SelectYr` a total of `r length(unique(mo$X_ID1))` cameras cntributed data to the UKMON repository.  Together, these cameras recorded `r nrow(mo)` individual meteor observations.  The number of recorded observations by station is as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
-source(paste(PlotDir,"Streamcounts_plot_by_station.r",sep="/"),local=TRUE)
+par(mai=c(2.0,1.0,0.5,0.5))
+
+outfile = paste(ReportDir,"/TABLE_Stream_Counts_by_Station_",SelectStream,"_",SelectYr,".csv",sep="")
+
+MainTitle = paste("Total observations by station",Streamname)
+
+
+# Restrict velocity to prevent range problems
+
+outtab <- t(as.matrix(sort(table(mo$X_ID1),decreasing=TRUE)))
+
+# Select and configure the output device
+
+h = barplot(outtab,
+         main=MainTitle,
+         ylab = "Counts",
+         border=FALSE,
+         plot = TRUE,
+         col="blue",
+         cex.names = 0.6, 
+         las=2)
+
+title(sub=DataSet,line=6)
+
+rm(outtab)
+rm(h)
 box(which="plot",lty="solid")
 ```
 
-After initial processing, the number of unified observations meeting quality criteria as a percentage of individual observations was `r rows_to_process` from `r nrow(ms)` individual station observations (`r sprintf("%.1f",100*rows_to_process/nrow(ms))`)%.  
+After applying quality criteria`we found that `r rows_to_process` meteors were observed by more than one camera (Unified observations).  The following shows a count of the number of meters observed by two, three, etc. cameras.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_by_correllation.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The number of unified observations by stream (top ten) is as follows:
+The number of unified observations as a percentage of individual observations is `r sprintf("%.1f",100*rows_to_process/nrow(mo))`%.  A breakdown of unified observation counts by stream (top ten) is as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"streamcounts.r",sep="/"),local=TRUE)
@@ -239,7 +245,7 @@ box(which="plot",lty="solid")
 
 ## Fireball activity
 
-A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period in `r SelectYr`.  A breakdown by months and by shower is shown below.
+A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period ('r SelectYr`).  Here we define a fireball as a meteor event with a magnitude of -4 or less.  A breakdown by month and by shower is shown below.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"fireball_by_month.r",sep="/"),local=TRUE)
@@ -251,7 +257,7 @@ source(paste(PlotDir,"fireball_by_stream.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The top 10 brightest fireballs were:
+The brightest (top 10) fireballs observed during `r SelectYr` were:
 
 ```{r magtab, echo=FALSE}
 fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream","X_ID1")]
@@ -264,16 +270,19 @@ kable(fireball[1:maxrow,],row.names=FALSE)
 ```
 
 
-## Velocity distribution
+## Velocity distribution 
+
+The following graphs show the distribution of velocities:
+
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_vel.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-## Magnitudes
+## Magnitudes 
 
-The following graphs show the distribution of velocities and magnitudes are shown below:
+The following graphs show the distribution of magnitudes:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_mag.r",sep="/"),local=TRUE)
@@ -285,13 +294,13 @@ source(paste(PlotDir,"abs_magnitude_vs_h1_h2_reg.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The altitudes at which ablation was visible is shown in the plot below
+The following plots shows the altitude of the atart and end of ablation for each individual meteor.  The plot is in order of decreasing start height and gives a good visualisation of the depth of the ablation zone.  Where in the atmosphere ablation occurs will depend on factors such as meteor velocity and composition.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_ablation.r",sep="/"),local=TRUE)
 ```
 
-The maximum start height was `r sprintf("%.1f",max(mu$X_H1))` km and the minimum end height was `r sprintf("%.1f",min(mu$X_H2))` km.  The distribution of distances travelled through the ablation zone was as follows:
+The maximum observed altitude was `r sprintf("%.1f",max(mu$X_H1))` km and the minimum observed altitude was `r sprintf("%.1f",min(mu$X_H2))` km.  The distribution of distances travelled through the ablation zone was as follows:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"observed_trajectory_LD21.r",sep="/"),local=TRUE)
@@ -305,11 +314,6 @@ source(paste(PlotDir,"semimajor_v_ascending.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
-source(paste(PlotDir,"semiMajor_v_inclination.r",sep="/"),local=TRUE)
-box(which="plot",lty="solid")
-```
-
 ## Data matching
 
 The following table shows the camera pairings that are producing the highest number of unified observations.
@@ -318,15 +322,15 @@ The following table shows the camera pairings that are producing the highest num
 
 tmp <- subset(mt,substring(mt$X_ID1,2,8) != "UNIFIED")
 tmp$X_ID2 = substr(tmp$X_ID2,2,30)
-outtab <- table(tmp$X_ID1,tmp$X_ID2)
+outtab <- table(tmp$X_ID1,tmp$X_ID2) 
 unified <- data.frame()
 for (irow in 1: nrow(outtab)) {
-
+  
   for (icol in 1:min(irow,ncol(outtab))) {
     if (outtab[irow,icol] != 0) {
       unified <- rbind( unified, data.frame(row.names(outtab)[irow], colnames(outtab)[icol], outtab[irow,icol] ))
     }
-
+    
   }
 }
 colnames(unified) <- c("Station_1", "Station_2", "Paired_Observations")
@@ -334,9 +338,14 @@ unified <- unified[order(unified$Paired_Observations, decreasing = TRUE),]
 kable(unified[1:20,],row.names=FALSE)
 ```
 
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
+source(paste(PlotDir,"semiMajor_v_inclination.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
 ## Data Quality Indicators
 
-The following plot shows the average linearity error in the processed data:
+The following plot shows the average linearity error in the processing of data:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"' }
 source(paste(PlotDir,"cdeg_overall.r",sep="/"),local=TRUE)

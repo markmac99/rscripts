@@ -25,7 +25,8 @@ date:   "`r Sys.Date()`"
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
-#   1.0   07/12/2016    First release
+#   1.1   14/03/2017    Report on matches using UNIFIED as well as single ons data 
+#   1.0   07/12/2017    First release
 #
 #=============================================================================
 ```
@@ -43,22 +44,25 @@ for (i in 1:max_loop) {
 
 ```{r setup, echo=FALSE}
 
-my <- ms[substr(ms$X_localtime,1,4)==CurrentYr,]
-totalobs = nrow(my)
-totalspo = nrow(my[my$X_stream=="SPO",])
+#my <- ms[substr(ms$X_localtime,1,4)==CurrentYr,]
+totalobs = nrow(m_s_station_yr)
+totalspo = nrow(m_s_station_yr[m_s_station_yr$X_stream=="SPO",])
 totalstr = totalobs - totalspo
 
-totalobs_all = nrow(ms)
-totalspo_all = nrow(ms[ms$X_stream=="SPO",])
+totalobs_all = nrow(m_s_station_all)
+totalspo_all = nrow(m_s_station_all[m_s_station_all$X_stream=="SPO",])
 totalstr_all = totalobs_all - totalspo_all
 
-Oper_since_yr = substr(min(ms$X_localtime),1,4)
+Oper_since_yr = substr(min(m_s_station_all$X_localtime),1,4)
 
-has_stream <-    ( nrow(ms[ms$X_stream != "SPO",])) > 0
-has_stream_yr <- ( nrow(my[my$X_stream != "SPO",])) > 0
+has_stream <-    ( nrow(m_s_station_all[m_s_station_all$X_stream != "SPO",])) > 0
+has_stream_yr <- ( nrow(m_s_station_yr[m_s_station_yr$X_stream != "SPO",])) > 0
 
-fireball_count    <- nrow(ms[ms$X_mag <= -4,]) > 0
-fireball_count_yr <- nrow(my[my$X_mag <= -4,]) > 0
+has_uni    <-    ( nrow(m_u_station_all)) > 0
+has_uni_yr <-    ( nrow(m_u_station_yr)) > 0
+
+fireball_count    <- nrow(m_s_station_all[m_s_station_all$X_mag <= -4,]) > 0
+fireball_count_yr <- nrow(m_s_station_yr[m_s_station_yr$X_mag <= -4,]) > 0
 
 ```
 
@@ -70,7 +74,7 @@ In `r CurrentYr` `r SelectStation` has recorded `r totalobs` individual meteor o
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 MainTitle = paste(SelectStation, "observations by month")
-outtab <- t(as.matrix(tabulate(as.numeric(substring(my$X_localtime,6,7)),nbins = 12)))
+outtab <- t(as.matrix(tabulate(as.numeric(substring(m_s_station_yr$X_localtime,6,7)),nbins = 12)))
 h = barplot(outtab,
          main=MainTitle,
          ylab = "Counts",
@@ -84,12 +88,30 @@ axis(1, at = h, label = month.abb, padj = 0)
 box(which="plot",lty="solid")
 ```
 
-`r if (has_stream_yr) {"The following shows observations by stream (preliminary UFO ANALYSIS classification):"}`
+`r if (has_stream_yr) {"The following shows observation counts by stream for the 20 most frequent showers based on preliminary UFO ANALYSIS classifications:"}`
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"', eval=has_stream_yr}
-MainTitle = paste(SelectStation, "stream observations, station")
-outtab <- sort(table(my[my$X_stream != "SPO","X_stream"]),decreasing=TRUE)
-h = barplot(outtab[1:min(length(outtab))],
+MainTitle = paste(SelectStation, "stream observations")
+outtab <- sort(table(m_s_station_yr[m_s_station_yr$X_stream != "SPO","X_stream"]),decreasing=TRUE)
+h = barplot(outtab[1:min(length(outtab),20)],
+         main=MainTitle,
+         ylab = "Counts",
+         border=FALSE,
+         plot = TRUE,
+         col="blue",
+         cex.names = 0.6, 
+         las=2)
+box(which="plot",lty="solid")
+```
+
+`r if (has_uni_yr) {"The following table shows which stations are generating matched observations with this station and the number of matches:"}`
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"', eval = has_uni_yr}
+MainTitle = paste("Matched observations for",SelectStation)
+uni = table( m_u_station_yr$X_ID2 )
+uni <- uni[order(uni,decreasing=TRUE)]
+uni <- uni[order(uni[uni>0],decreasing=TRUE)]
+barplot(uni,
          main=MainTitle,
          ylab = "Counts",
          border=FALSE,
@@ -105,7 +127,7 @@ box(which="plot",lty="solid")
 `r if (fireball_count_yr) {"(Based on IAU definition of apparrent magnitude of -4.0 of greater)"}`
 
 ```{r magtab1, echo=FALSE, eval=fireball_count_yr}
-fireball <- my[my$X_mag <= -4, c("X_localtime","X_mag","X_stream", "X_dur",  "X_ID1")]
+fireball <- m_s_station_yr[m_s_station_yr$X_mag <= -4, c("X_localtime","X_mag","X_stream", "X_dur",  "X_ID1")]
 fireball <- fireball[, c("X_localtime","X_mag", "X_dur", "X_stream")]
 fireball <- fireball[order(fireball$X_mag),]
 colnames(fireball) <- c("Datetime","Magnitude", "Duration", "Stream")
@@ -118,7 +140,7 @@ To date, station `r SelectStation` has recorded `r totalobs_all` individual mete
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 MainTitle = paste(SelectStation, "Observations by year, station")
-outtab <- t(as.matrix(table(substring(ms$X_localtime,1,4))))
+outtab <- t(as.matrix(table(substring(m_s_station_all$X_localtime,1,4))))
 h = barplot(outtab,
          main=MainTitle,
          ylab = "Counts",
@@ -134,7 +156,7 @@ box(which="plot",lty="solid")
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"', eval = has_stream}
 MainTitle = paste(SelectStation, "stream observations")
-outtab <- sort(table(ms[ms$X_stream != "SPO","X_stream"]),decreasing=TRUE)
+outtab <- sort(table(m_s_station_all[m_s_station_all$X_stream != "SPO","X_stream"]),decreasing=TRUE)
 h = barplot(outtab[1:min(length(outtab),20)],
          main=MainTitle,
          ylab = "Counts",
@@ -151,18 +173,36 @@ box(which="plot",lty="solid")
 `r if (fireball_count) {"(Based on IAU definition of apparrent magnitude of -4.0 of greater)"}`
 
 ```{r magtab2, echo=FALSE, eval=fireball_count}
-fireball <- ms[ms$X_mag <= -4, c("X_localtime","X_mag", "X_dur", "X_stream", "X_ID1")]
+fireball <- m_s_station_all[m_s_station_all$X_mag <= -4, c("X_localtime","X_mag", "X_dur", "X_stream", "X_ID1")]
 fireball <- fireball[, c("X_localtime","X_mag", "X_dur", "X_stream")]
 fireball <- fireball[order(fireball$X_mag),]
 colnames(fireball) <- c("Datetime","Magnitude", "Duration", "Stream")
 kable(fireball,row.names=FALSE)
 ```
 
+`r if (has_uni) {"The following table shows which stations are generating matched observations with this station and the number of matches:"}`
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"', eval = has_uni_yr}
+MainTitle = paste("Matched observations for",SelectStation)
+uni = table( m_u_station_all$X_ID2 )
+uni <- uni[order(uni,decreasing=TRUE)]
+uni <- uni[order(uni[uni>0],decreasing=TRUE)]
+barplot(uni,
+         main=MainTitle,
+         ylab = "Counts",
+         border=FALSE,
+         plot = TRUE,
+         col="blue",
+         cex.names = 0.6, 
+         las=2)
+box(which="plot",lty="solid")
+```
+
 
 `r if (has_stream) {"# Detailed counts (including sporadics)"}`
 
 ```{r, echo=FALSE, eval=has_stream}
-outtab <- data.frame(sort(table(ms[,"X_stream"]),decreasing=TRUE))
+outtab <- data.frame(sort(table(m_s_station_all[,"X_stream"]),decreasing=TRUE))
 colnames(outtab) <- c("Shower","Counts")
 kable(outtab)
 ```

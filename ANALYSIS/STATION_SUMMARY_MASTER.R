@@ -16,8 +16,9 @@
 #
 #   Vers  Date          Notes
 #   ----  ----          -----
-#   1.1   09/02/2016    Moved root path from config file to improve MacOS compatibility
-#   1.0   19/01/2016    First release
+#   1.2   14/03/2017    Ingest UNIFIED as well as singletons to report on matches
+#   1.1   09/02/2017    Moved root path from config file to improve MacOS compatibility
+#   1.0   19/01/201y    First release
 #
 #=============================================================================
 
@@ -48,87 +49,75 @@ library(knitr)
 library(tcltk)
 
 
+filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
+  #===============================================================================
+  #
+  #-- Filters input data frame mx for all meteors meeting selection criteria
+  #-- (stream and year)
+  #
+  #===============================================================================
+  #-- Filter input data frame by type (e.g. unified), stream, and year
+  cat(paste("Filtering input for stream:",mstream,", year:", myr,", type:",mtype,"\n"))
+  if (mtype == "UNIFIED") {
+    my <- subset(mx, substring(X_ID1,2,8) == "UNIFIED")
+    my$X_ID1[nchar(my$X_ID1) == 11] <- sub("D_","D_0",my$X_ID1[nchar(my$X_ID1) == 11])
+  }
+  
+  if (mtype != "UNIFIED") my <- subset(mx, substring(X_ID1,2,8) != "UNIFIED")
+  
+  if (mstream != "ALL")  my <- subset(my, X_stream == mstream)
+  if (myr     != "ALL")  my <- subset(my, substring(my$X_localtime,1,4) == myr)
+  cat(paste(mtype,"rows:",nrow(my),"\n"))    
+  return (my)
+  
+}
+
 #-- Filesystem parameters
 
 root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
 source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
-
-read_ufo <- function(mx) {
-  #===============================================================================
-  #
-  #-- Presents file picker filtered for CSV files (if no preconfigured input file)
-  #-- Ingests file
-  #-- Standardises data
-  #
-  #===============================================================================
-  
-  # - Read UFO Orbit data file
-  
-  # setup filter
-  filt <- matrix(c("Comma separated / Excel files","*.csv"), 
-                 nrow = 1, ncol = 2, byrow = TRUE,
-                 dimnames = list(c("csv"),c("V1","V2")))
-  
-  if (is.na(SourceUnified)) {
-    infile <- tk_choose.files(caption = "Select UFO Orbit Unified file",multi = FALSE,filters=filt)
-  } else {
-    infile <- paste(DataDir,SourceUnified,sep="/")
-  }
-  
-  if (infile == "") stop
-  
-  # --- Read the UFO data file
-  
-  # Read raw data
-  mt <- read.csv(infile, header=TRUE)
-  
-  # Standardise ID1
-  mt$X_ID1<- substring(mt$X_ID1,2)
-  
-  # standardise localtime
-  mt$X_localtime <- as.POSIXct(strptime(mt$X_localtime, "_%Y%m%d_%H%M%S"))
-  
-  # remove NA localtimes if any
-  mt <- subset(mt, ! is.na(X_localtime))
-  
-  # Standardise streamname
-  mt$X_stream <- toupper(ifelse(substring(mt$X_stream,1,2)=="_J",substring(mt$X_stream,5),substring(mt$X_stream,2)))
-  
-  return (mt)
-  }
   
   runtime = format(Sys.time(),"%Y%m%d_%H%M")
   
   # Import data
   
-  mt <- read_ufo()
+  SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
+  SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File   
   
+  # - Read UFO Orbit data file
   
-  # Datacleansing (resolve known issues in source data)
-  if (is.factor(mt$X_amag)) {
-    cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
-    mt$X_amag <- as.numeric(as.character(mt$X_amag))
-    mt <- mt[!is.na(mt$X_amag),]
-  }
+  indir <- tk_choose.dir(caption = "Select source directory")
+  infile1 <- paste(indir,"/",SourceUnified,sep = "")
+  infile2 <- paste(indir,"/",SourceSingle,sep = "")
   
-  if (is.factor(mt$X_QA)) {
-    cat("Note: Problem detected in input data - QA converted from factor to numeric")
-    mt$X_QA <- as.numeric(as.character(mt$X_QA))
-    mt <- mt[!is.na(mt$X_QA),]
-  }
+  # --- Read the UFO data filea
+  m_all_unified <- read.csv(infile1, header=TRUE)
+  m_all_single <- read.csv(infile2, header=TRUE)
   
-  # Count rows imported
+  # Standardise UNIFIED data
+  m_all_unified$X_ID1<- substring(m_all_unified$X_ID1,2)
+  m_all_unified$X_localtime <- as.POSIXct(strptime(m_all_unified$X_localtime, "_%Y%m%d_%H%M%S"))
+  m_all_unified  <- subset(m_all_unified, ! is.na(X_localtime))
+  m_all_unified$X_stream <- toupper(ifelse(substring(m_all_unified$X_stream,1,2)=="_J",substring(m_all_unified$X_stream,5),substring(m_all_unified$X_stream,2)))
   
-  rows_read <- nrow(mt)
-  if (rows_read == 0) {
+  # Standardise SINGLETON data
+  m_all_single$X_ID1<- substring(m_all_single$X_ID1,2)
+  m_all_single$X_localtime <- as.POSIXct(strptime(m_all_single$X_localtime, "_%Y%m%d_%H%M%S"))
+  m_all_single <- subset(m_all_single, ! is.na(X_localtime))
+  m_all_single$X_stream <- toupper(ifelse(substring(m_all_single$X_stream,1,2)=="_J",substring(m_all_single$X_stream,5),substring(m_all_single$X_stream,2)))
+  
+  if (nrow(m_all_single) == 0) {
     stop("No data in input file")
   } 
   
+  # Count rows imported
+  
   loop_max = length(stations) / 2
   knitrenv <- new.env()
-  assign("stations",stations, envir=knitrenv)
-  assign("CurrentYr",CurrentYr, envir=knitrenv)
-
+  
+  assign("stations",      stations,      envir=knitrenv)
+  assign("CurrentYr",     CurrentYr,     envir=knitrenv)
+  
   # For each station in the list, print report
   
   for (i in 1:loop_max) {
@@ -137,26 +126,33 @@ read_ufo <- function(mx) {
     # Get station name
     SelectStation  = stations[idx]
     
-    ms <- NA
+    m_s_station_all <- NA
+    m_u_station_all <- NA
     
     # Get data for all cameras operated by this staio
-    ms <- subset(mt, X_ID1 %in% unlist(stations[idx+1]))
-    assign("ms",ms, envir=knitrenv )    
+    m_s_station_all  <- subset(m_all_single,  X_ID1 %in% unlist(stations[idx+1]))
+    m_u_station_all  <- subset(m_all_unified, X_ID1 %in% unlist(stations[idx+1]))
+    
+    assign("m_s_station_all", m_s_station_all,envir=knitrenv )    
+    assign("m_u_station_all", m_u_station_all, envir=knitrenv )    
     
     # Skip report if no data
-    if (nrow(ms) != 0) {
+    if (nrow(m_s_station_all) != 0 ) {
       
-     # Get observationf for station for the feature year
-     my <- ms[substr(ms$X_localtime,1,4)==CurrentYr,]
-     assign("SelectStation",SelectStation, envir=knitrenv )
-     assign("my",my, envir=knitrenv ) 
+      assign("SelectStation",SelectStation, envir=knitrenv )
+      
+      m_s_station_yr <- m_s_station_all[substr(m_s_station_all$X_localtime,1,4)==CurrentYr,]
+      m_u_station_yr <- m_u_station_all[substr(m_u_station_all$X_localtime,1,4)==CurrentYr,]
+      
+      assign("m_s_station_yr",m_s_station_yr, envir=knitrenv ) 
+      assign("m_u_station_yr",m_u_station_yr, envir=knitrenv ) 
      
-     # Skip report if no data for the year
-     if (nrow(my) != 0) {
+    # Skip report if no data for the year
+    if (nrow(m_s_station_yr) != 0) {
        
-       # Produce report
+    # Produce report
        
-        rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=ReportDir, output_file=paste(SelectStation,".html",sep="")) 
+       rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=ReportDir, output_file=paste(SelectStation,".html",sep="")) 
         }
     }
   }
