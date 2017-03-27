@@ -240,9 +240,6 @@ source(paste(PlotDir,"stream_plot_timeline_single.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-```
-
-
 ## Velocity distribution of `r Streamname`
 
 The graph below shows the distribution of velocities for the `r Streamname`. 
