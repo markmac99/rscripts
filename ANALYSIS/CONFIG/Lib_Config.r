@@ -13,6 +13,7 @@
 #   Vers  Date          Note
 #   1.1   09/02/2016    Changes to improve MacOS compatibility
 #   1.0   12/12/2015    First release
+#   1.1   08/03/2017    Revised file handling
 #
 # =================================================================
 
@@ -22,13 +23,12 @@ Catalog = "J8"
 
 #-- Switch to control wheter QA criteria are applied
 
-Apply_QA = TRUE
+Apply_QA = FALSE
 
 #-- Source data file name (Value of NA trigers file picker dialogue)
 
-#SourceUnified   = "EDMOND 5 v2 - Unified.csv"            # Source UFO Orbit UNIFIED data (path is DataDir below)
-#SourceUnified   = "Unified.csv"                          # Source UFO Orbit UNIFIED data (path is DataDir below)
-SourceUnified    =  NA                                    # Force file chooser
+SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
+SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File 
 
 #-- Page sizing
 

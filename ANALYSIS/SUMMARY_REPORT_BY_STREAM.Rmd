@@ -36,12 +36,12 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2014
+SelectYr      = 2016
 SelectStream  = "PER"
 Streamname    = "Perseids"
 Solpeak       = 139.212097	
-SelectStart   = "2014/08/11 18:18"
-SelectEnd     = "2014/08/14 08:08"
+SelectStart   = paste(SelectYr,"/08/11 18:18",sep="")
+SelectEnd     = paste(SelectYr,"/08/14 08:08",sep="")
 Apply_QA      = FALSE
 ```
 
@@ -240,11 +240,6 @@ source(paste(PlotDir,"stream_plot_timeline_single.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
-The number of matched observations over time is as follows:
-
-```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
-source(paste(PlotDir,"stream_plot_timeline_unified.r",sep="/"),local=TRUE)
-box(which="plot",lty="solid")
 ```
 
 
