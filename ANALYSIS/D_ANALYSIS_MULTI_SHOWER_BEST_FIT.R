@@ -6,9 +6,11 @@
 #
 #-- Description:
 #
-#   This script processes iteratively a UFO orbit export fie of UNIFIED data, each pass
-#   calculating D_Criterion against a DIFFERENT reference orbit for a stream.  The p
-#   probability density function and cumulative frequency is then plotted for each stream.
+#   This script processes iteratively a UFO orbit export f UNIFIED data, each pass
+#   calculating D_Criterion against a reference orbit for a stream.  If the criteria 
+#   is below a defined threshold for an observation, the observation is assigned to the
+#   current stream.  If a subsequent stream gets a better match, the stream is again 
+#   reasigned to the best match.
 #
 #   Environment varables are set by script Lib_Config.r which sets pointers
 #   to source data, directory holding the scripts, directory recieving reports
@@ -32,7 +34,8 @@
 root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
 
 d_threshold = 0.8
-Binsize     = 0.005
+Plot_title  = "Perseids (EDMOND dataset: 2001 to 2015)"
+Binsize     = 0.002
 D_Type      = "DD"
 J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
 
@@ -77,15 +80,11 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
         if (rows_to_process == 0) {
           stop("No data to process - check QA filter settings")
         } else {
-        
-                  pdf(paste(ReportDir,"/D_Criterion_multi.pdf",sep=""),onefile=TRUE, paper=as.character("a4r"), width = 1745, height = 877)
-                  par(mfrow=c(2,3))  
-                    
+                  mu$D_Value  <- 9999
+                  mu$D_Stream <- "SPO"
                   for (ix in 1:nrow(streamlist)) {
-
-                      stream_name = streamlist$X_name[ix]
-                      cat(paste("Pass ", ix, ": ", stream_name,"\n",sep=""))
-                      Plot_title  = paste(D_Type," analysis against reference orbit:",stream_name)
+                    
+                      stream_name = as.factor(streamlist$X_name[ix])
                       
                       # Get orbital elements              
                       e = as.numeric(streamlist$X_e[ix])
@@ -96,37 +95,25 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
                      
                       # Run D-analysis and filter to <= threshold
                       zlist  <-DCalc(mu, e,q,i,n,p,D_Type = D_Type)
-                      zlist <- zlist[zlist$D_Value <= d_threshold,]
+                      idx <- (zlist$D_Value <= mu$D_Value) & (zlist$D_Value <= d_threshold)
+                      mu$D_Stream[idx] <- as.character(stream_name)
+                      mu$D_Value[idx]  <- zlist$D_Value[idx]
                       
-                      if (nrow(zlist) > 100 ) {
-                      
-                          # Generate stats
-                          ah <- hist(zlist$D_Value, plot = FALSE, breaks = c(seq(0,d_threshold,Binsize)))
-        
-                          # Get cumulative counts
-                          ahcum <- cumsum(ah$counts)
-                          
-                          # Open PDF device
-                          options(scipen=999)
-                          # Generate plot
-                          par(mar=c(5, 6, 2, 4))
-                          plot(ah$mid,ah$counts,type="l",col="red",xlim=c(0,d_threshold),main = Plot_title, xlab="", ylab = "", axes = FALSE)
-                          axis(side = 1, at = seq(0,d_threshold,0.1),  tcl = -0.2)
-                          axis(side = 2)
-                          mtext("Differential counts", side=2, line=2)
-                          par(new=TRUE)
-                          plot(ah$mid,ahcum,type="l", col="blue",axes=FALSE,ann=FALSE,xlim=c(0,d_threshold))
-                          axis(side = 4)
-                          mtext("Cumulative counts", side=4, line=2)
-                          mtext(paste(D_Type," (Bin size ",Binsize,")",sep=""), side=1, line=3)
-                          axis(4)
-                          
                   }
+                  
+                  mu_tab = table(mu$D_Stream, mu$X_stream)
+                  result_tab <- NA
+                  for (i in 1:nrow(mu_tab)) {
+                    for (j in 1:ncol(mu_tab)) {
+                      if (mu_tab[i,j]> 0) {
+                        result_tab <- rbind(result_tab, data.frame(rownames(mu_tab)[i],colnames(mu_tab)[j],mu_tab[i,j]))
+                      }
+                    }
                   }
-                  dev.off() 
+                  
+                  colnames(result_tab) <- c("D_ANALYSIS","UFO", "Count")
+                  result_tab <- result_tab[with(result_tab, order(Count)),] 
+                  
           }  
         }
     	} 
-
-par(mfrow=c(1,1))
-    

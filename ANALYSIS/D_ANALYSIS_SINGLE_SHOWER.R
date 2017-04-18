@@ -30,15 +30,29 @@
 #
 #=============================================================================
 
+
+###### RUN-TIME PARAMETERS ######
+
+# - Reference orbit
+Stream      <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
+Stream_start_month = "August"
+Stream_start_day   = 2
+Stream_end_month   = "August"
+Stream_end_day     = 24
+
+# - D Criterion
+D_Type      = "DD"
+d_threshold = 0.6
+
+# - Plot details
+Plot_title  = "Perseids (EDMOND dataset)"
+Binsize     = 0.01
+
+###### RUN-TIME PARAMETERS END ######
+
 #-- Filesystem parameters
 
 root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
-
-Stream      <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
-d_threshold = 0.8
-Plot_title  = "Perseids (EDMOND dataset: 2001 to 2015)"
-Binsize     = 0.002
-D_Type      = "DD"
 
 # Initialise environment variables and common functions
 
@@ -75,10 +89,15 @@ D_Type      = "DD"
         } else {
           zlist <- mu
         }
-            
+        
+        
+        # Filter to date range
+        zlist <- zlist[months(zlist$X_localtime)==Stream_start_month & as.numeric(substr(zlist$X_localtime,9,10))>=Stream_start_day,]
+        zlist <- zlist[months(zlist$X_localtime)==Stream_end_month   & as.numeric(substr(zlist$X_localtime,9,10))<=Stream_end_day,]
+        
         rows_to_process <- nrow(zlist)
         if (rows_to_process == 0) {
-          stop("No data to process - check QA filter settings")
+          stop("No data to process - check QA filter settings and steam date ranges")
         } else {
 
                   # Get orbital elements              
@@ -112,7 +131,7 @@ D_Type      = "DD"
                   plot(ah$mid,ahcum,type="l", col="blue",axes=FALSE,ann=FALSE,xlim=c(0,d_threshold))
                   axis(side = 4)
                   mtext("Cumulative counts", side=4, line=2)
-                  mtext(D_Type, side=1, line=3)
+                  mtext(paste(D_Type," (Bin size: ", Binsize,")",sep=""),side=1, line=3)
                   axis(4)
                   dev.off()                
           }  
