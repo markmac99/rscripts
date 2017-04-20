@@ -34,11 +34,9 @@
 ###### RUN-TIME PARAMETERS ######
 
 # - Reference orbit
-Stream      <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
-Stream_start_month = "August"
-Stream_start_day   = 2
-Stream_end_month   = "August"
-Stream_end_day     = 24
+Stream       <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
+Stream_start <- 0802 # Date in mmyy numeric format
+Stream_end   <- 0822 # Date in mmyy numeric format
 
 # - D Criterion
 D_Type      = "DD"
@@ -92,8 +90,9 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
         
         
         # Filter to date range
-        zlist <- zlist[months(zlist$X_localtime)==Stream_start_month & as.numeric(substr(zlist$X_localtime,9,10))>=Stream_start_day,]
-        zlist <- zlist[months(zlist$X_localtime)==Stream_end_month   & as.numeric(substr(zlist$X_localtime,9,10))<=Stream_end_day,]
+
+        datetest  <- data.frame(as.numeric(substr(zlist$X_localtime,6,7)) * 100 + as.numeric(substr(zlist$X_localtime,9,10)))
+        zlist     <- zlist[datetest[,1] >= Stream_start & datetest[,1] <= Stream_end,]
         
         rows_to_process <- nrow(zlist)
         if (rows_to_process == 0) {
@@ -137,3 +136,4 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
           }  
         }
     	} 
+    
