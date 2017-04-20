@@ -31,8 +31,8 @@
 
 root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
 
-d_threshold = 0.8
-Binsize     = 0.005
+d_threshold = 0.6
+Binsize     = 0.01
 D_Type      = "DD"
 J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
 
@@ -79,27 +79,33 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
         } else {
         
                   pdf(paste(ReportDir,"/D_Criterion_multi.pdf",sep=""),onefile=TRUE, paper=as.character("a4r"), width = 1745, height = 877)
-                  par(mfrow=c(2,3))  
+                  par(mfrow=c(2,3))
+                  par(mar=c(5, 6, 2, 4))
+                  par(new=TRUE)
                     
                   for (ix in 1:nrow(streamlist)) {
 
                       stream_name = streamlist$X_name[ix]
                       cat(paste("Pass ", ix, ": ", stream_name,"\n",sep=""))
-                      Plot_title  = paste(D_Type," analysis against reference orbit:",stream_name)
+                      Plot_title  = stream_name
                       
                       # Get orbital elements              
-                      e = as.numeric(streamlist$X_e[ix])
-                      q = as.numeric(streamlist$X_q[ix])
-                      i = as.numeric(streamlist$X_incl[ix])
-                      n = as.numeric(streamlist$X_node[ix])
-                      p = as.numeric(streamlist$X_peri[ix])
+                      e  = as.numeric(streamlist$X_e[ix])
+                      q  = as.numeric(streamlist$X_q[ix])
+                      i  = as.numeric(streamlist$X_incl[ix])
+                      n  = as.numeric(streamlist$X_node[ix])
+                      p  = as.numeric(streamlist$X_peri[ix])
+                      s1 = as.numeric(streamlist$X_sol1[ix])
+                      s2 = as.numeric(streamlist$X_sol2[ix])
                      
                       # Run D-analysis and filter to <= threshold
-                      zlist  <-DCalc(mu, e,q,i,n,p,D_Type = D_Type)
-                      zlist <- zlist[zlist$D_Value <= d_threshold,]
+                      zlist <-mu[mu$X_sol >= s1 & mu$X_sol <= s2 ,]
                       
-                      if (nrow(zlist) > 100 ) {
+                      if (nrow(zlist) > 10 & ! is.na(e)) {
                       
+                          zlist <-DCalc(zlist, e,q,i,n,p,D_Type = D_Type)
+                          zlist <-zlist[zlist$D_Value <= d_threshold,]
+                        
                           # Generate stats
                           ah <- hist(zlist$D_Value, plot = FALSE, breaks = c(seq(0,d_threshold,Binsize)))
         
@@ -109,7 +115,6 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
                           # Open PDF device
                           options(scipen=999)
                           # Generate plot
-                          par(mar=c(5, 6, 2, 4))
                           plot(ah$mid,ah$counts,type="l",col="red",xlim=c(0,d_threshold),main = Plot_title, xlab="", ylab = "", axes = FALSE)
                           axis(side = 1, at = seq(0,d_threshold,0.1),  tcl = -0.2)
                           axis(side = 2)

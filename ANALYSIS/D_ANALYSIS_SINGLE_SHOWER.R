@@ -34,10 +34,10 @@
 ###### RUN-TIME PARAMETERS ######
 
 # - Reference orbit
-Stream             <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
-Stream_date_filter <- TRUE # Set TRUE to enforce date filter otherwise FALSE
-Stream_start       <- 0802 # Date in mmyy numeric format
-Stream_end         <- 0822 # Date in mmyy numeric format
+Stream            <- data.frame(stream_name="Perseids",  p=149.513875,    n=139.194266,   i=113.038548, e=0.912969,  q=0.949) 
+Stream_sol_filter <- TRUE # Set TRUE to enforce date filter otherwise FALSE
+Stream_sol1       <- 119.033241 # Start solar longitude
+Stream_sol2       <- 160.456467 # End solar longitude
 
 # - D Criterion
 D_Type      = "DD"
@@ -92,9 +92,8 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
         
         # Filter to date range
         
-        if (Stream_date_filter) {
-          datetest  <- data.frame(as.numeric(substr(zlist$X_localtime,6,7)) * 100 + as.numeric(substr(zlist$X_localtime,9,10)))
-          zlist     <- zlist[datetest[,1] >= Stream_start & datetest[,1] <= Stream_end,]
+        if (Stream_sol_filter) {
+          zlist     <- zlist[zlist$X_sol >= Stream_sol1 & zlist$X_sol <= Stream_sol2 ,]
         }
         
         rows_to_process <- nrow(zlist)
