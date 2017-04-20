@@ -79,7 +79,7 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
         } else {
         
                   pdf(paste(ReportDir,"/D_Criterion_multi.pdf",sep=""),onefile=TRUE, paper=as.character("a4r"), width = 1745, height = 877)
-                  par(mfrow=c(2,3))
+                  par(mfrow=c(2,2))
                   par(mar=c(5, 6, 2, 4))
                   par(new=TRUE)
                     
@@ -100,12 +100,14 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
                      
                       # Run D-analysis and filter to <= threshold
                       zlist <-mu[mu$X_sol >= s1 & mu$X_sol <= s2 ,]
+
+                      if (nrow(zlist) > 10 & ! is.na(e)) {
+                        zlist <-DCalc(zlist, e,q,i,n,p,D_Type = D_Type)
+                        zlist <-zlist[zlist$D_Value <= d_threshold,]
+                        }
                       
                       if (nrow(zlist) > 10 & ! is.na(e)) {
-                      
-                          zlist <-DCalc(zlist, e,q,i,n,p,D_Type = D_Type)
-                          zlist <-zlist[zlist$D_Value <= d_threshold,]
-                        
+                    
                           # Generate stats
                           ah <- hist(zlist$D_Value, plot = FALSE, breaks = c(seq(0,d_threshold,Binsize)))
         
@@ -115,6 +117,7 @@ J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
                           # Open PDF device
                           options(scipen=999)
                           # Generate plot
+                          par(ps = 12, cex = 1, cex.main = 1)
                           plot(ah$mid,ah$counts,type="l",col="red",xlim=c(0,d_threshold),main = Plot_title, xlab="", ylab = "", axes = FALSE)
                           axis(side = 1, at = seq(0,d_threshold,0.1),  tcl = -0.2)
                           axis(side = 2)
