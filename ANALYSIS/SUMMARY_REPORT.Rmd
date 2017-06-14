@@ -38,11 +38,11 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 # Set report selection criteria
 
 SelectYr      = 2016
-SelectStream  = "ALL"
-Streamname    = ""
-Solpeak       = 139.212097
-SelectStart   = "2016/01/02 18:18"
-SelectEnd     = "2016/12/31 08:08"
+SelectStream  = "ETA"
+Streamname    = "ETA Aquiriids"
+Solpeak       = 46.28019
+SelectStart   = "2016/04/21 00:00"
+SelectEnd     = "2016/05/26 00:00"
 ```
 
 ```{r setup_libraries, include=FALSE}
@@ -191,7 +191,7 @@ select_dev <- function(Outfile=NA, Otype=NA, wd=NA, ht=NA, pp=NA)
 title: "Summary report `r SelectYr`"
 output: html_document
 author: UKMON
-date: 27 Nov 2016
+date: `r format(Sys.time(),"%B %d %Y")`
 ---
 
 # Summary of activity
@@ -228,7 +228,7 @@ rm(h)
 box(which="plot",lty="solid")
 ```
 
-After applying quality criteria`we found that `r rows_to_process` meteors were observed by more than one camera (Unified observations).  The following shows a count of the number of meters observed by two, three, etc. cameras.
+After applying quality criteria we found that `r rows_to_process` meteors were observed by more than one camera (Unified observations).  The following shows a count of the number of meters observed by two, three, etc. cameras.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"stream_plot_by_correllation.r",sep="/"),local=TRUE)
@@ -243,31 +243,6 @@ box(which="plot",lty="solid")
 ```
 
 
-## Fireball activity
-
-A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period ('r SelectYr`).  Here we define a fireball as a meteor event with a magnitude of -4 or less.  A breakdown by month and by shower is shown below.
-
-```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
-source(paste(PlotDir,"fireball_by_month.r",sep="/"),local=TRUE)
-box(which="plot",lty="solid")
-```
-
-```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
-source(paste(PlotDir,"fireball_by_stream.r",sep="/"),local=TRUE)
-box(which="plot",lty="solid")
-```
-
-The brightest (top 10) fireballs observed during `r SelectYr` were:
-
-```{r magtab, echo=FALSE}
-fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream","X_ID1")]
-fireball$X_matches <- ifelse(substr(fireball$X_ID1,10,10)=="0",substr(fireball$X_ID1,11,11),substr(fireball$X_ID1,10,11))
-fireball <- fireball[, c("X_localtime","X_mag","X_stream","X_matches")]
-fireball <- fireball[order(fireball$X_mag),]
-maxrow = min(nrow(fireball),10)
-colnames(fireball) <- c("Datetime","Magnitude", "Stream","Station matches")
-kable(fireball[1:maxrow,],row.names=FALSE)
-```
 
 
 ## Velocity distribution

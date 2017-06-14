@@ -54,6 +54,7 @@ totalspo_all = nrow(m_s_station_all[m_s_station_all$X_stream=="SPO",])
 totalstr_all = totalobs_all - totalspo_all
 
 Oper_since_yr = substr(min(m_s_station_all$X_localtime),1,4)
+Oper_to_yr   = substr(max(m_s_station_all$X_localtime),1,4)
 
 has_stream <-    ( nrow(m_s_station_all[m_s_station_all$X_stream != "SPO",])) > 0
 has_stream_yr <- ( nrow(m_s_station_yr[m_s_station_yr$X_stream != "SPO",])) > 0
@@ -134,9 +135,12 @@ colnames(fireball) <- c("Datetime","Magnitude", "Duration", "Stream")
 kable(fireball,row.names=FALSE)
 ```
 
-# All Observations
+# Observations recorded by `r SelectStation`, `r Oper_since_yr` to `r Oper_to_yr`
 
-To date, station `r SelectStation` has recorded `r totalobs_all` individual meteor observations.  These observations comprise `r totalspo_all` sporadic meteors and `r totalstr_all` stream meteors.  A breakdown by year is given below.
+UKMON data for `r SelectStation` covers the period from `r Oper_since_yr` to `r Oper_to_yr` and totals  `r totalobs_all` individual meteor observations.  These observations comprise `r totalspo_all` sporadic meteors and `r totalstr_all` stream meteors.  
+
+This section provides a summary of all observations
+by `r SelectStation` from `r Oper_since_yr` to `r Oper_to_yr`.  A breakdown of the number of observations by year is given in the histogram below.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 MainTitle = paste(SelectStation, "Observations by year, station")
@@ -170,7 +174,7 @@ box(which="plot",lty="solid")
 
 `r if (fireball_count) {"## Fireball activity"}`
 
-`r if (fireball_count) {"(Based on IAU definition of apparrent magnitude of -4.0 of greater)"}`
+`r if (fireball_count) {"Fireballs recorded (Based on IAU definition of apparrent magnitude of -4.0 of greater)"}`
 
 ```{r magtab2, echo=FALSE, eval=fireball_count}
 fireball <- m_s_station_all[m_s_station_all$X_mag <= -4, c("X_localtime","X_mag", "X_dur", "X_stream", "X_ID1")]
