@@ -37,12 +37,12 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2016
-SelectStream  = "ETA"
-Streamname    = "ETA Aquiriids"
+SelectYr      = 2017
+SelectStream  = "ALL"
+Streamname    = ""
 Solpeak       = 46.28019
-SelectStart   = "2016/04/21 00:00"
-SelectEnd     = "2016/05/26 00:00"
+SelectStart   = "2017/01/02 00:00"
+SelectEnd     = "2017/12/31 00:00"
 ```
 
 ```{r setup_libraries, include=FALSE}
@@ -55,7 +55,7 @@ library(tcltk)
 ```{r configure, echo = FALSE}
 source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
 ```
-
+abort
 ```{r define_macros, echo=FALSE}
 
 filter_apply_qa <- function(mx) {
@@ -242,6 +242,33 @@ source(paste(PlotDir,"streamcounts.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
+
+
+## Fireball activity
+
+A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period ('r SelectYr`).  A breakdown by months and by shower is shown below.
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"fireball_by_month.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
+source(paste(PlotDir,"fireball_by_stream.r",sep="/"),local=TRUE)
+box(which="plot",lty="solid")
+```
+
+The top 10 brightest fireballs were:
+
+```{r magtab, echo=FALSE}
+fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag","X_stream","X_ID1")]
+fireball$X_matches <- ifelse(substr(fireball$X_ID1,10,10)=="0",substr(fireball$X_ID1,11,11),substr(fireball$X_ID1,10,11))
+fireball <- fireball[, c("X_localtime","X_mag","X_stream","X_matches")]
+fireball <- fireball[order(fireball$X_mag),]
+maxrow = min(nrow(fireball),10)
+colnames(fireball) <- c("Datetime","Magnitude", "Stream","Station matches")
+kable(fireball[1:maxrow,],row.names=FALSE)
+```
 
 
 
