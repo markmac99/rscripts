@@ -36,12 +36,12 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2016
+SelectYr      = 2017
 SelectStream  = "PER"
 Streamname    = "Perseids"
 Solpeak       = 139.212097	
-SelectStart   = paste(SelectYr,"/08/11 18:18",sep="")
-SelectEnd     = paste(SelectYr,"/08/14 08:08",sep="")
+SelectStart   = paste(SelectYr,"/01/01 00:00",sep="")
+SelectEnd     = paste(SelectYr,"/12/31 00:00",sep="")
 Apply_QA      = FALSE
 ```
 
@@ -205,6 +205,7 @@ if (nrow(mu) == 0) {
     }
 DataSet <- ""
 select_dev <- function(Outfile=NA, Otype=NA, wd=NA, ht=NA, pp=NA)
+  
  {
   
 }
@@ -319,3 +320,18 @@ box(which="plot",lty="solid")
 ```
 
 
+```{r setup, echo=FALSE}
+fireball_count    <- nrow(mu[mu$X_mag <= -4,]) > 0
+```
+
+`r if (fireball_count) {"## Bright stream meteors"}`
+
+`r if (fireball_count) {"The following table shows meteors which meet the IAU definition of a fireball (apparrent magnitude of -4.0 of brighter).  Only unified observations are shown"}`
+
+
+```{r magtab2, echo=FALSE, eval=fireball_count}
+fireball <- mu[mu$X_mag <= -4, c("X_localtime","X_mag", "X_dur", "X_ID1")]
+fireball <- fireball[, c("X_localtime","X_mag", "X_dur")]
+fireball <- fireball[order(fireball$X_mag),]
+colnames(fireball) <- c("Datetime","Magnitude", "Duration")
+kable(fireball,row.names=FALSE)
