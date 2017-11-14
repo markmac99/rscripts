@@ -246,7 +246,7 @@ box(which="plot",lty="solid")
 
 ## Fireball activity
 
-A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period ('r SelectYr`).  A breakdown by months and by shower is shown below.
+A total of `r nrow(mu[mu$X_mag <= -4,])` fireballs were observed in the reporting period (`r SelectYr`).  A breakdown by months and by shower is shown below.
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
 source(paste(PlotDir,"fireball_by_month.r",sep="/"),local=TRUE)
