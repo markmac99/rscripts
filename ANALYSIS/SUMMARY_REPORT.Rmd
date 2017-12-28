@@ -37,7 +37,7 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2017
+SelectYr      = 2016
 SelectStream  = "ALL"
 Streamname    = ""
 Solpeak       = 46.28019
@@ -322,7 +322,7 @@ The following table shows the camera pairings that are producing the highest num
 
 ```{r echo=FALSE, eval = (nrow(mt) > 0),fig.height = 5, fig.extra='style="float:left"'}
 
-tmp <- subset(mt,substring(mt$X_ID1,2,8) != "UNIFIED")
+tmp <- subset(ms,substring(ms$X_ID1,2,8) != "UNIFIED")
 tmp$X_ID2 = substr(tmp$X_ID2,2,30)
 outtab <- table(tmp$X_ID1,tmp$X_ID2)
 unified <- data.frame()
