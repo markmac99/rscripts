@@ -31,46 +31,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 stations <- list(
   "Ash Vale",        c("Ash_Vale_K1", "Ash_Vale_K2", "Ash_Vale_K3"),
-  "Church Crookham", c("Church_Cro_S1"),
+  "Church Crookham", c("Church_Cro_S1", "Church_Cro_S2"),
   "Clanfield",       c("Clanfield_NE", "Clanfield_NO", "Clanfield_NW", "Clanfield_SO", "Clanfield_SE"),
   "DL",              c("DL1_"),
-  "Chard",           c("Chard_CD"),
-  "Basingstoke",     c("Basingstok_E", "Basingstok_W", "Basingstok_N", "Basingstok_S"),
+  "Chard",           c("Chard_CD", "Chard_L1"),
+  "Basingstoke",     c("Basingstok_E", "Basingstok_W", "Basingstok_N", "Basingstok_S", "Basingstok_SW"),
   "Cardiff",         c("Duffryn_C2", "Dyffryn_C2", "MC1_c1"),
   "Horley",          c("Horley_SE"),
-  "East Barnet",     c("EastBarnet_NW", "EastBarnet_NE"),
+  "East Barnet",     c("EastBarnet_NW", "EastBarnet_NE", "EastBarnet_No", "EastBarnet_01"),
   "Lockyer",         c("Lockyer_L1", "Lockyer1_L1", "Lockyer2_L2"),
   "Scotch Street",   c("Scotch_St_C1", "Scotch_St_C2", "Scotch_St_C3"),
-  "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W")
+  "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_N", "Wilcot_S", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W"),
+  "Dorchester",      c("DORCHESTER_1"),
+  "Duffrn",          c("Duffryn_C2", "Duffryn_C2"),
+  "MC1",             c("MC1_c1")
+  
+  
 )
 
 library(xtable)
 library(knitr)
 library(tcltk)
-
-
-filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
-  #===============================================================================
-  #
-  #-- Filters input data frame mx for all meteors meeting selection criteria
-  #-- (stream and year)
-  #
-  #===============================================================================
-  #-- Filter input data frame by type (e.g. unified), stream, and year
-  cat(paste("Filtering input for stream:",mstream,", year:", myr,", type:",mtype,"\n"))
-  if (mtype == "UNIFIED") {
-    my <- subset(mx, substring(X_ID1,2,8) == "UNIFIED")
-    my$X_ID1[nchar(my$X_ID1) == 11] <- sub("D_","D_0",my$X_ID1[nchar(my$X_ID1) == 11])
-  }
-
-  if (mtype != "UNIFIED") my <- subset(mx, substring(X_ID1,2,8) != "UNIFIED")
-
-  if (mstream != "ALL")  my <- subset(my, X_stream == mstream)
-  if (myr     != "ALL")  my <- subset(my, substring(my$X_localtime,1,4) == myr)
-  cat(paste(mtype,"rows:",nrow(my),"\n"))
-  return (my)
-
-}
 
 #-- Filesystem parameters
 
@@ -82,7 +63,7 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   # Import data
 
   SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
-  SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File
+  SourceSingle     <-  "UKMON-all-csv.csv"       # Single Obs File
 
   # - Read UFO Orbit data file
 
@@ -93,7 +74,7 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   # --- Read the UFO data filea
   m_all_unified <- read.csv(infile1, header=TRUE)
   m_all_single <- read.csv(infile2, header=TRUE)
-
+  
   # Standardise UNIFIED data
   m_all_unified$X_ID1<- substring(m_all_unified$X_ID1,2)
   m_all_unified$X_localtime <- as.POSIXct(strptime(m_all_unified$X_localtime, "_%Y%m%d_%H%M%S"))
@@ -101,11 +82,18 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   m_all_unified$X_stream <- toupper(ifelse(substring(m_all_unified$X_stream,1,2)=="_J",substring(m_all_unified$X_stream,5),substring(m_all_unified$X_stream,2)))
 
   # Standardise SINGLETON data
-  m_all_single$X_ID1<- substring(m_all_single$X_ID1,2)
-  m_all_single$X_localtime <- as.POSIXct(strptime(m_all_single$X_localtime, "_%Y%m%d_%H%M%S"))
-  m_all_single <- subset(m_all_single, ! is.na(X_localtime))
-  m_all_single$X_stream <- toupper(ifelse(substring(m_all_single$X_stream,1,2)=="_J",substring(m_all_single$X_stream,5),substring(m_all_single$X_stream,2)))
-
+  trim_J <- function (x) gsub("^J\\d_|^\\sJ\\d_|\\s", "", x)
+  m_all_single <-   m_all_single[grep("^J\\d_|^\\sJ\\d_|SPO|\\sSPO|spo|\\sspo",m_all_single$Group),]
+  m_all_single$X_ID1<- substring(m_all_single$Loc_Cam,2)
+  m_all_single$X_localtime <- as.POSIXct(strptime(m_all_single$LocalTime, "%Y%m%d_%H%M%S"))
+  m_all_single <- subset(m_all_single, ! is.na(LocalTime))
+  m_all_single$X_stream <- toupper(trim_J(m_all_single$Group))
+  m_all_single$X_mag <- toupper(trim_J(m_all_single$Mag))
+  m_all_single$X_dur <- toupper(trim_J(m_all_single$Dur.sec.))
+  
+  m_all_single <- m_all_single[,c("X_ID1", "X_stream", "X_localtime", "X_dur", "X_mag")]
+  m_all_unified <- m_all_unified[,c("X_ID1", "X_ID2", "X_stream","X_localtime", "X_dur", "X_mag")]
+    
   if (nrow(m_all_single) == 0) {
     stop("No data in input file")
   }
