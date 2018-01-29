@@ -24,7 +24,7 @@
 
 # Set report selection criteria
 
-CurrentYr = '2016'
+CurrentYr = '2017'
 knitr::opts_chunk$set(echo = TRUE)
 
 # Station list
@@ -43,7 +43,7 @@ stations <- list(
   "Scotch Street",   c("Scotch_St_C1", "Scotch_St_C2", "Scotch_St_C3"),
   "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_N", "Wilcot_S", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W"),
   "Dorchester",      c("DORCHESTER_1"),
-  "Duffrn",          c("Duffryn_C2", "Duffryn_C2"),
+  "Duffryn",         c("Dyffryn_C2", "Duffryn_C2"),
   "MC1",             c("MC1_c1")
   
   
@@ -90,6 +90,7 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   m_all_single$X_stream <- toupper(trim_J(m_all_single$Group))
   m_all_single$X_mag <- toupper(trim_J(m_all_single$Mag))
   m_all_single$X_dur <- toupper(trim_J(m_all_single$Dur.sec.))
+  m_all_single  <- subset(m_all_single, ! is.na(X_localtime))
   
   m_all_single <- m_all_single[,c("X_ID1", "X_stream", "X_localtime", "X_dur", "X_mag")]
   m_all_unified <- m_all_unified[,c("X_ID1", "X_ID2", "X_stream","X_localtime", "X_dur", "X_mag")]
