@@ -88,7 +88,7 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   m_all_single$X_localtime <- as.POSIXct(strptime(m_all_single$LocalTime, "%Y%m%d_%H%M%S"))
   m_all_single <- subset(m_all_single, ! is.na(LocalTime))
   m_all_single$X_stream <- toupper(trim_J(m_all_single$Group))
-  m_all_single$X_mag <- toupper(trim_J(m_all_single$Mag))
+  m_all_single$X_mag <- as.numeric(trim_J(m_all_single$Mag))
   m_all_single$X_dur <- toupper(trim_J(m_all_single$Dur.sec.))
   m_all_single  <- subset(m_all_single, ! is.na(X_localtime))
   
