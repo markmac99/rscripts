@@ -24,7 +24,7 @@
 
 # Set report selection criteria
 
-CurrentYr = '2017'
+CurrentYr = '2018'
 knitr::opts_chunk$set(echo = TRUE)
 
 # Station list
@@ -43,9 +43,10 @@ stations <- list(
   "Scotch Street",   c("Scotch_St_C1", "Scotch_St_C2", "Scotch_St_C3"),
   "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_N", "Wilcot_S", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W"),
   "Dorchester",      c("DORCHESTER_1"),
-  "Cardiff Dyffryn", c("Dyffryn_C2", "Duffryn_C2"),
-  "Cardiff MC1",     c("MC1_c1")
-
+  "Duffryn",         c("Dyffryn_C2", "Duffryn_C2"),
+  "MC1",             c("MC1_c1")
+  
+  
 )
 
 library(xtable)
@@ -62,7 +63,7 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   # Import data
 
   SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
-  SourceSingle     <-  "UKMON-all-csv.csv"       # Single Obs File
+  SourceSingle     <-  "UFO_Merged_Files.csv"       # Single Obs File
 
   # - Read UFO Orbit data file
 
@@ -73,7 +74,8 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   # --- Read the UFO data filea
   m_all_unified <- read.csv(infile1, header=TRUE)
   m_all_single <- read.csv(infile2, header=TRUE)
-
+  m_all_single  <- unique( m_all_single  )
+  
   # Standardise UNIFIED data
   m_all_unified$X_ID1<- substring(m_all_unified$X_ID1,2)
   m_all_unified$X_localtime <- as.POSIXct(strptime(m_all_unified$X_localtime, "_%Y%m%d_%H%M%S"))
@@ -90,10 +92,10 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   m_all_single$X_mag <- as.numeric(trim_J(m_all_single$Mag))
   m_all_single$X_dur <- toupper(trim_J(m_all_single$Dur.sec.))
   m_all_single  <- subset(m_all_single, ! is.na(X_localtime))
-
+  
   m_all_single <- m_all_single[,c("X_ID1", "X_stream", "X_localtime", "X_dur", "X_mag")]
   m_all_unified <- m_all_unified[,c("X_ID1", "X_ID2", "X_stream","X_localtime", "X_dur", "X_mag")]
-
+    
   if (nrow(m_all_single) == 0) {
     stop("No data in input file")
   }
