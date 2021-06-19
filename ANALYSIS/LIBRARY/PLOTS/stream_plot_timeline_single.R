@@ -36,11 +36,18 @@ Idx = 0
 select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
 
 # Plot meteor counts by individual stations
-    
+if (singletype == "UNIFIED"){
     dfm = get.bin.counts(ms$X_localtime, name.x = "time", 
                          start.pt = as.POSIXct(SelectStart),
                          end.pt = as.POSIXct(SelectEnd), 
                          bin.width = SelectInterval)
+}else{
+    dfm = get.bin.counts(ms$LocalTime, name.x = "time", 
+                         start.pt = as.POSIXct(SelectStart),
+                         end.pt = as.POSIXct(SelectEnd), 
+                         bin.width = SelectInterval)
+
+}
     maxy = max(maxy,max(dfm$freq))
     plot(dfm$time, dfm$freq, type="l", lwd=1, lty=1, pch=18, xaxt = "n", col="blue", ylim=c(0,maxy+1), xlab="Time", ylab="Count")
 

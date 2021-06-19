@@ -10,16 +10,19 @@
 #==================================================================
 
 # Set-up JPEG
-outfile = paste(Set_Outfile("/TABLE_stream_counts_by_Station",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_stream_counts_by_Station", Yr = SelectYr, Stream = SelectStream), ".csv", sep = "")
 
-MainTitle = paste("Stream counts by station",Streamname)
-SubTitle  = DataSet
+MainTitle = paste("Stream counts by station", Streamname)
+SubTitle = DataSet
 
-# Restrict velocity to prevent range problems
+if (singletype == "UNIFIED") {
+  outtab <- table(ms$X_ID1, ms$X_stream)
+} else {
+  outtab <- table(ms$Loc_Cam, ms$Group)
 
-outtab <- table(ms$X_ID1, ms$X_stream)
+}
 
-write.table(outtab,outfile, sep=",",col.names=NA)
+write.table(outtab, outfile, sep = ",", col.names = NA)
 rm(outtab)
 
 
@@ -28,4 +31,4 @@ rm(outtab)
 
 
 
-    
+

@@ -17,12 +17,16 @@ par(mai=c(2.0,1.0,0.5,0.5))
 
 outfile = paste(ReportDir,"/TABLE_Stream_Counts_by_Station_",SelectStream,"_",SelectYr,".csv",sep="")
 
-MainTitle = paste("Counts of unified observations by station",Streamname)
+MainTitle = paste("Counts of single observations by station",Streamname)
 
 
 # Restrict velocity to prevent range problems
 
-outtab <- t(as.matrix(sort(table(ms$X_ID1),decreasing=TRUE)))
+if (singletype == "UNIFIED"){
+    outtab <- t(as.matrix(sort(table(ms$X_ID1),decreasing=TRUE)))
+}else{
+    outtab <- t(as.matrix(sort(table(ms$Loc_Cam),decreasing=TRUE)))
+}
 
 # Select and configure the output device
 select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=paper_orientation)
