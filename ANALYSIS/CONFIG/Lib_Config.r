@@ -26,7 +26,7 @@ Catalog = "J8"
 Apply_QA = FALSE
 
 # R scripts location
-root = "~/src/analysis"
+root = "."
 
 # Source data file name (Value of NA trigers file picker dialogue)
 
