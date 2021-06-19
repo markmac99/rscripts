@@ -179,7 +179,7 @@ if (rows_read == 0) {
       Runscript("abs_magnitude_vs_h_diff_reg.r", Otype = OutType, orient = Landscape)
       Runscript("abs_magnitude_vs_h1_h2.r", Otype = OutType, orient = Landscape)
       Runscript("heliocentric_velocity.r", Otype = OutType, orient = Landscape)
-      Runscript("semimajoraxisfreq.r", Otype = OutType, orient = Landscape)
+      Runscript("Semimajoraxisfreq.r", Otype = OutType, orient = Landscape)
       Runscript("fireball_by_month.r", Otype = OutType, orient = Landscape)
       Runscript("a_binned.r", Otype = OutType, orient = Landscape)
       Runscript("a_binned_multi.r", Otype = OutType, orient = Landscape)
