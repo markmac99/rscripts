@@ -26,39 +26,20 @@
 # Set report selection criteria
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 0) {
-  stop("At least one argument must be supplied (input file).n", call. = FALSE)
+  Ylist = c("2017","2018","2019","2020","2021","2022")
+  i <- menu(Ylist, graphics = TRUE, title = "Choose year")
+  CurrentYr = strtoi(Ylist[i])
+}else{
+  CurrentYr = strtoi(args[1])  
 }
-CurrentYr = strtoi(args[1])
+
+
+source(paste(".", "CONFIG/Lib_Config.r",sep="/"))
 
 knitr::opts_chunk$set(echo = TRUE)
 
 # Station list
-
-stations <- list(
-  "Ash Vale",        c("Ash_Vale_K1", "Ash_Vale_K2", "Ash_Vale_K3", "UK000C"),
-  "Church Crookham", c("Church_Cro_S1", "Church_Cro_S2", "UK0009", "UK0022"),
-  "Clanfield",       c("Clanfield_NE", "Clanfield_NO", "Clanfield_NW", "Clanfield_SO", "Clanfield_SE"),
-  "DL",              c("DL1_"),
-  "Chard",           c("Chard_CD", "Chard_L1", "UK001Z", "UK0024", "UK0025"),
-  "East Barnet",     c("EastBarnet_NW", "EastBarnet_NE", "EastBarnet_No", "EastBarnet_01"),
-  "Lockyer",         c("Lockyer_L1", "Lockyer1_L1", "Lockyer2_L2"),
-  "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_N", "Wilcot_S", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W"),
-  "Cardiff",         c("Duffryn_C2", "Dyffryn_C2", "MC1_c1"),
-  "Tackley",         c("TACKLEY_TC", "TACKLEY_NE", "UK0006", "UK000F", "UK001L", "UK002F"),
-  "Blackfield",      c("Blackfield_", "UK002B"),
-  "Loscoe",          c("Loscoe_S", "UK0003"),
-  "Exeter",          c("UK0020", "UK0021"), 
-  "Ringwood",        c("UK0001", "UK000H", "UK000S"),
-  "Corntown",        c("UK000T", "UK001K"), 
-  "Bath",            c("UK0027"), 
-  "Boston",          c("UK0026"),
-  "Gretna",          c("UK000P"),
-  "Tissington",      c("UK000Y", "UK000Z"),
-  "Bideford",        c("UK0007"), 
-  "Trelawynd",       c("UK002A"),
-  "Longbridge",      c("UK002E"),
-  "Pantybwlch",      c("UK0029")
-)
+source(paste(RefDir,"StationList.r", sep="/"))
 
 library(xtable)
 library(knitr)
@@ -67,7 +48,6 @@ library(stringr)
 
 #-- Filesystem parameters
 
-source(paste(".", "/CONFIG/Lib_Config.r",sep=""))
 
   runtime = format(Sys.time(),"%Y%m%d_%H%M")
 
@@ -160,3 +140,5 @@ source(paste(".", "/CONFIG/Lib_Config.r",sep=""))
         }
     }
   }
+
+  
