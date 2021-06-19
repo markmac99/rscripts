@@ -1,13 +1,13 @@
 ---
 - hosts: ukmonhelper
   vars:
-    srcdir: /mnt/e/dev/meteorhunting/UKMON-shared/PCB/ANALYSIS
+    srcdir: /mnt/e/dev/meteorhunting/rscripts/ANALYSIS
   tasks:
   - name: import dev variables 
-    include_vars: ../archive/dev-vars.yml
+    include_vars: ../../ukmon-shared/archive/dev-vars.yml
     tags: dev
   - name: import prod variables
-    include_vars: ../archive/prod-vars.yml
+    include_vars: ../../ukmon-shared/archive/prod-vars.yml
     tags: prod
   - name: Ensures {{destdir}}/data/reports/ exists
     file: path={{destdir}}/data/reports/ state=directory  
