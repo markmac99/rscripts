@@ -25,9 +25,12 @@ Catalog = "J8"
 
 Apply_QA = FALSE
 
-#-- Source data file name (Value of NA trigers file picker dialogue)
+# R scripts location
+root = "~/src/analysis"
 
-SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
+# Source data file name (Value of NA trigers file picker dialogue)
+
+SourceUnified    <-  "UKMON-all-matches.csv"   # Unified Obs File
 SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File 
 
 #-- Page sizing
@@ -52,8 +55,8 @@ SelectInterval    = 10 * 60 # in seconds
 SelectIntervalSol = 0.01    # in degrees solar longitude
 
 #-- Options for output
-OutType  = NA       # Force dialogue
-#OutType = "JPG"    # Force JPEG
+#OutType  = NA       # Force dialogue
+OutType = "JPG"    # Force JPEG
 #OutType = "PDF"    # Force PDF
 
 #-- Analysis folders

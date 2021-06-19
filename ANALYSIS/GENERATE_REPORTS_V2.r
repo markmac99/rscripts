@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 #=============================================================================
 #
 #-- Author: P Campbell-Burns, UKMON
@@ -42,186 +43,208 @@
 #   1.0   03/12/2016    First release
 #
 #=============================================================================
-
-#-- Filesystem parameters
-
-root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
-
-cat("Reporting started",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
+args = commandArgs(trailingOnly = TRUE)
+getUserInput = 0
+if (length(args) == 0) {
+  getUserInput = 1 
+}
 
 # Initialise environment variables and common functions
 
-  source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
-  source(paste(FuncDir,"/common_functions.r",sep=""))
+source(paste(".", "/CONFIG/Lib_Config.r", sep = ""))
+source(paste(FuncDir, "/Common_Functions.r", sep = ""))
 
-  runtime = format(Sys.time(),"%Y%m%d_%H%M")
+runtime = format(Sys.time(), "%Y%m%d_%H%M")
+
+cat("Reporting started", format(Sys.time(), "%a %b %d %Y %H:%M:%S"), "\n")
 
 # Close any open graphical output devices (other than NULL)
-  repeat{
-    if(dev.cur() == 1) {
-      break
-    }
-    dev.off()
+repeat {
+  if (dev.cur() == 1) {
+    break
   }
+  dev.off()
+}
 
-  # Select Output Type
-  if (is.na(OutType)) {
-    Olist = c("PDF","JPG")
-    i <- menu(Olist, graphics=TRUE, title="Choose output type")
-    OutType = Olist[i]
-  }
-  
+# Select Output Type
+if (is.na(OutType)) {
+  Olist = c("PDF", "JPG")
+  i <- menu(Olist, graphics = TRUE, title = "Choose output type")
+  OutType = Olist[i]
+}
+
 # Set the R working directory (this is where R saves its environment)
 
-    setwd(WorkingDir)
-  
+setwd(WorkingDir)
+
 # Read UNIFIED CSV file created by UFO Orbit (all columns are read) and standardise data
 
-    mt <- read_ufo()
-    
-    # Following is a quick fix to a UFO data Issue
-    if (is.factor(mt$X_amag)) {
-      cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
-      mt$X_amag <- as.numeric(as.character(mt$X_amag))
-      mt <- mt[!is.na(mt$X_amag),]
-    }
-    
-    if (is.factor(mt$X_QA)) {
-      cat("Note: Problem detected in input data - QA converted from factor to numeric")
-      mt$X_QA <- as.numeric(as.character(mt$X_QA))
-      mt <- mt[!is.na(mt$X_QA),]
-    }
-    
-    rows_read <- nrow(mt)
-    if (rows_read == 0) {
-        stop("No data in input file")
-    } else {
-    
-        cat(paste("*** Rows read from inpuf file",as.character(rows_read),"\n"))
-    
-    # Select which stream / year to process
-    
-        stream <- get_stream(mt)
-        SelectYr <- get_year(mt)
-    
-    #= Extract stream details
-    
-        SelectStream = stream[1,]
-        Streamname   = stream[2,]
-        Solpeak      = as.numeric(stream[3,])
-#        SelectStart  = stream[4,]
-#        SelectEnd    = stream[5,]
-    
-    # Get UNIFIED and Single observations
-    
-        mu <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="UNIFIED")
-        ms <- filter_stream(mt, mstream=SelectStream, myr=SelectYr, mtype="OTHER")
-        
-        SelectStart = min(mu$X_localtime - 24*60*60)
-        SelectEnd = max(mu$X_localtime + 24*60*60)
-    
-        if (nrow(mu) == 0) {
-            stop(paste("No UNIFIED observations for stream",SelectStream,"were found in the input data"))
-            } else {
-        
-        # Apply Quality Criteria
-            
-            if (Apply_QA) {
-                mu <- filter_apply_qa(mu)
-            }
-            
-            rows_to_process <- nrow(mu)
-            if (rows_to_process == 0) {
-              stop ("No data to process - check / adjust QA filter settings")
-            } else {
-            
-            # Set dataset title
-            
-                DataSet=paste("Dataset:",SelectStream,"period",substring(min(mu$X_local),1,10),"to",substring(max(mu$X_local),1,10))
-            
-            # Generate generic plots
-            cat("\n",
-                "Output type:       ",OutType,"\n",
-                "QA filter enabled: ",Apply_QA,"\n\n",sep="")            
-            Runscript("stream_plot_by_correllation.r",Otype=OutType,orient=Landscape)
-            Runscript("stream_plot_mag.r",Otype=OutType,orient=Landscape)
-            Runscript("stream_plot_vel.r",Otype=OutType,orient=Landscape)
-            Runscript("stream_ablation.r",Otype=OutType,orient=Landscape)
-            Runscript("semiMajor_v_inclination.r",Otype=OutType,orient=Portrait)
-            Runscript("semimajor_v_ascending.r",Otype=OutType,orient=Portrait)
-            Runscript("abs_magnitude_vs_h1_h2_reg.r",Otype=OutType,orient=Landscape)
-            Runscript("abs_magnitude_vs_h_diff_reg.r",Otype=OutType,orient=Landscape)
-            Runscript("abs_magnitude_vs_h1_h2.r",Otype=OutType,orient=Landscape)
-            Runscript("heliocentric_Velocity.r",Otype=OutType,orient=Landscape)
-            Runscript("semimajoraxisfreq.r",Otype=OutType,orient=Portrait)
-            Runscript("fireball_by_month.r",Otype=OutType,orient=Landscape)
-            Runscript("a_binned.r",Otype=OutType,orient=Landscape)
-            Runscript("a_binned_multi.r",Otype=OutType,orient=Portrait)
-            Runscript("meteor_duration.r",Otype=OutType,orient=Landscape)
-            Runscript("observed_trajectory_LD21.r",Otype=OutType,orient=Landscape)
-            
-            #-- Generate generic tables
-            
-            source(paste(TabsDir,"fireball_detect.R",sep="/"))
-            source(paste(TabsDir,"stream_counts_by_year.r",sep="/")) 
-            
-            # Run scripts relevant only to streams
-            
-            if (SelectStream != "ALL" & SelectStream != "SPO")
-                {
-                    Runscript("stream_plot_radiant_movement.r",Otype=OutType, orient=Landscape)
-                    Runscript("stream_plot_timeline_solar.r",Otype=OutType,orient=Landscape)
-                    Runscript("stream_plot_radiant.r",Otype=OutType,orient=Landscape)
-                    Runscript("stream_plot_radiant_delta.r",Otype=OutType,orient=Landscape)
-                } else {
-                	cat(paste("Note: Stream-only plots have been excluded","\n"))
-                }
-            
-            # Run scripts relevant only to "ALL streams" plots
-            
-            if (SelectStream == "ALL")
-                {
-                    Runscript("streamcounts.r",Otype=OutType,orient=Landscape)
-                    Runscript("fireball_by_stream.r",Otype=OutType,orient=Landscape)
-                    Runscript("counts_by_sol.r",Otype=OutType,orient=Landscape)   
-                    Runscript("observed_trajectory_LD21_by_stream.r",Otype="PDF",orient=Landscape)                       
-        
-                } else {
-                	cat(paste("Note: Plots for ALL have been excluded","\n"))
-                }
-            
-            # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
-            # and the selected report is a Stream Report
-            
-            if (nrow(ms) != 0 & SelectStream != "ALL"  & SelectStream != "SPO") {
-                  Runscript("stream_plot_timeline_single.r",Otype=OutType,orient=Landscape)
-            }
-            
-            # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
-            
-            if (nrow(ms) != 0) {
-                	Runscript("Streamcounts_plot_by_station.r",Otype=OutType,orient=Landscape)
-                	Runscript("delta_vo_overall.r",Otype=OutType,orient=Landscape)
-                	Runscript("delta_vo_by_station.r",Otype="PDF",orient=Landscape)
-                	Runscript("qa_by_station.r",Otype="PDF",orient=Landscape)
-                	Runscript("qa_overall.r",Otype=OutType,orient=Landscape)
-                	Runscript("cdeg_overall.r",Otype=OutType,orient=Landscape)
-                	Runscript("cdeg_by_station.r",Otype="PDF",orient=Landscape)
-                	#-- Table outputs
-                	source(paste(TabsDir,"station_tab_match_correlation.r",sep="/"))
-                	source(paste(TabsDir,"stream_counts_by_station.r",sep="/")) 
-                	source(paste(TabsDir,"stream_counts.r",sep="/"))
-                	source(paste(TabsDir,"station_tab_match_top_correlation.r",sep="/"))
-                } else {    
-                	cat(paste("Note: No Station data in source data (Unified only)","\n"))
-                }
-            
-             cat("Run complete",format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
-          }
-    
-      }
+mt <- read_ufo()
+
+# Following is a quick fix to a UFO data Issue
+if (is.factor(mt$X_amag)) {
+  cat("Note: Problem detected in input data - amag converted from factor to numeric \n      Ignore next cooercion warnings")
+  mt$X_amag <- as.numeric(as.character(mt$X_amag))
+  mt <- mt[!is.na(mt$X_amag),]
+}
+
+if (is.factor(mt$X_QA)) {
+  cat("Note: Problem detected in input data - QA converted from factor to numeric")
+  mt$X_QA <- as.numeric(as.character(mt$X_QA))
+  mt <- mt[!is.na(mt$X_QA),]
+}
+
+rows_read <- nrow(mt)
+if (rows_read == 0) {
+  stop("No data in input file")
+} else {
+
+  cat(paste("*** Rows read from Matches file", as.character(rows_read), "\n"))
+
+  # Select which stream / year to process
+
+  if (getUserInput == 1){
+    stream <- get_stream(mt)
+    SelectYr <- get_year(mt)
+  }else{
+    stream <- match_stream(mt, args[1])
+    SelectYr = strtoi(args[2])
+  }
+  SelectStream = stream[1,]
+  Streamname = stream[2,]
+  Solpeak = as.numeric(stream[3,])
+  #        SelectStart  = stream[4,]
+  #        SelectEnd    = stream[5,]
+  print(SelectStream)
+  print(Streamname)
+  print(Solpeak)
+
+  #        SelectYr <- get_year(mt)
+
+  #= Extract stream details
+
+  # Get UNIFIED and Single observations
+
+  mu <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "UNIFIED", itype= "UNIFIED")
+
+  # Before 2020 all data is in a single UFO-Orbit format
+  # but after that the single station data is in a separate file
+  singletype = "UNFIED"
+  if( SelectYr > 2019)
+  {
+    mi <- read_ufa()
+    singletype = "SINGLE"
+    ms <- filter_stream(mi, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
+  }
+  else
+  {
+    ms <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
+  }
   
-}  
-    
-    
-    
+  SelectStart = min(mu$X_localtime - 24 * 60 * 60)
+  SelectEnd = max(mu$X_localtime + 24 * 60 * 60)
+
+  if (nrow(mu) == 0) {
+    stop(paste("No MATCHED observations for stream", SelectStream, "were found in the input data"))
+  } else {
+
+    # Apply Quality Criteria
+
+    if (Apply_QA) {
+      mu <- filter_apply_qa(mu)
+    }
+
+    rows_to_process <- nrow(mu)
+    if (rows_to_process == 0) {
+      stop("No data to process - check / adjust QA filter settings")
+    } else {
+
+      # Set dataset title
+
+      DataSet = paste("Dataset:", SelectStream, "period", substring(min(mu$X_local), 1, 10), "to", substring(max(mu$X_local), 1, 10))
+
+      # Generate generic plots
+      cat("\n",
+                "Output type:       ", OutType, "\n",
+                "QA filter enabled: ", Apply_QA, "\n\n", sep = "")
+      Runscript("stream_plot_by_correllation.r", Otype = OutType, orient = Landscape)
+      Runscript("stream_plot_mag.r", Otype = OutType, orient = Landscape)
+      Runscript("stream_plot_vel.r", Otype = OutType, orient = Landscape)
+      Runscript("stream_ablation.r", Otype = OutType, orient = Landscape)
+      Runscript("semimajor_v_inclination.r", Otype = OutType, orient = Portrait)
+      Runscript("semimajor_v_ascending.r", Otype = OutType, orient = Portrait)
+      Runscript("abs_magnitude_vs_h1_h2_reg.r", Otype = OutType, orient = Landscape)
+      Runscript("abs_magnitude_vs_h_diff_reg.r", Otype = OutType, orient = Landscape)
+      Runscript("abs_magnitude_vs_h1_h2.r", Otype = OutType, orient = Landscape)
+      Runscript("heliocentric_velocity.r", Otype = OutType, orient = Landscape)
+      Runscript("semimajoraxisfreq.r", Otype = OutType, orient = Landscape)
+      Runscript("fireball_by_month.r", Otype = OutType, orient = Landscape)
+      Runscript("a_binned.r", Otype = OutType, orient = Landscape)
+      Runscript("a_binned_multi.r", Otype = OutType, orient = Landscape)
+      Runscript("meteor_duration.r", Otype = OutType, orient = Landscape)
+      Runscript("observed_trajectory_LD21.r", Otype = OutType, orient = Landscape)
+
+      #-- Generate generic tables
+
+      source(paste(TabsDir, "fireball_detect.r", sep = "/"))
+      source(paste(TabsDir, "stream_counts_by_year.r", sep = "/"))
+
+      # Run scripts relevant only to streams
+
+      if (SelectStream != "ALL" & SelectStream != "SPO") {
+        Runscript("stream_plot_radiant_movement.r", Otype = OutType, orient = Landscape)
+        Runscript("stream_plot_timeline_solar.r", Otype = OutType, orient = Landscape)
+        Runscript("stream_plot_radiant.r", Otype = OutType, orient = Landscape)
+        Runscript("stream_plot_radiant_delta.r", Otype = OutType, orient = Landscape)
+      } else {
+        cat(paste("Note: Stream-only plots have been excluded", "\n"))
+      }
+
+      # Run scripts relevant only to "ALL streams" plots
+
+      if (SelectStream == "ALL") {
+        Runscript("streamcounts.r", Otype = OutType, orient = Landscape)
+        Runscript("fireball_by_stream.r", Otype = OutType, orient = Landscape)
+        Runscript("counts_by_sol.r", Otype = OutType, orient = Landscape)
+        Runscript("observed_trajectory_LD21_by_stream.r", Otype = "PDF", orient = Landscape)
+
+      } else {
+        cat(paste("Note: Plots for ALL have been excluded", "\n"))
+      }
+
+      # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
+      # and the selected report is a Stream Report
+
+      if (nrow(ms) != 0 & SelectStream != "ALL" & SelectStream != "SPO") {
+        Runscript("stream_plot_timeline_single.r", Otype = OutType, orient = Landscape)
+      }
+
+      # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
+
+      if (nrow(ms) != 0) {
+        Runscript("streamcounts_plot_by_station.r", Otype = OutType, orient = Landscape)
+        if (singletype == "UNIFIED"){
+          Runscript("delta_vo_overall.r", Otype = OutType, orient = Landscape)
+          Runscript("delta_vo_by_station.r", Otype = "PDF", orient = Landscape)
+          Runscript("qa_by_station.r", Otype = "PDF", orient = Landscape)
+          Runscript("qa_overall.r", Otype = OutType, orient = Landscape)
+          Runscript("cdeg_overall.r", Otype = OutType, orient = Landscape)
+          Runscript("cdeg_by_station.r", Otype = "PDF", orient = Landscape)
+        }
+        #-- Table outputs
+        source(paste(TabsDir, "station_tab_match_correlation.r", sep = "/"))
+        source(paste(TabsDir, "stream_counts_by_station.r", sep = "/"))
+        source(paste(TabsDir, "stream_counts.r", sep = "/"))
+        source(paste(TabsDir, "station_tab_match_top_correlation.r", sep = "/"))
+      } else {
+        cat(paste("Note: No Station data in source data (Unified only)", "\n"))
+      }
+
+      cat("Run complete", format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
+    }
+
+  }
+
+}
+
+

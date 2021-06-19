@@ -28,13 +28,9 @@
 #
 #=============================================================================
 
-#-- Filesystem parameters
-
-root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
-
 # Initialise environment variables and common functions
 
-source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
+source(paste(".","/CONFIG/Lib_Config.r",sep=""))
 source(paste(FuncDir,"/common_functions.r",sep=""))
 source(paste(FuncDir,"/D_Criteria.r",sep=""))
 source(paste(FuncDir,"/Orbit_3D.r",sep=""))

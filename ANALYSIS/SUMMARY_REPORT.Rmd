@@ -37,12 +37,12 @@ root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windo
 
 # Set report selection criteria
 
-SelectYr      = 2016
+SelectYr      = 2018
 SelectStream  = "ALL"
 Streamname    = ""
 Solpeak       = 46.28019
-SelectStart   = "2017/01/02 00:00"
-SelectEnd     = "2017/12/31 00:00"
+SelectStart   = "2018/01/02 00:00"
+SelectEnd     = "2018/12/31 00:00"
 ```
 
 ```{r setup_libraries, include=FALSE}
@@ -53,7 +53,7 @@ library(tcltk)
 ```
 
 ```{r configure, echo = FALSE}
-source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
+source(paste(".", "/CONFIG/Lib_Config.r", sep = ""))
 ```
 abort
 ```{r define_macros, echo=FALSE}
@@ -111,10 +111,8 @@ filter_stream <- function(mx, mstream="ALL", myr="ALL", mtype="UNIFIED") {
 OutType       = "CON"
 runtime = format(Sys.time(),"%Y%m%d_%H%M")
 
-SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
-SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File   
-
-# - Read UFO Orbit data file
+# - Read UFO Orbit data file 
+#   Note: SourceUnified and SourceSingle are defined in Lib_Config.r
 
 indir <- tk_choose.dir(caption = "Select source directory")
 infile1 <- paste(indir,"/",SourceUnified,sep = "")

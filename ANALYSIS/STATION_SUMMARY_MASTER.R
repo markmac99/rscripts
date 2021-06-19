@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 #=============================================================================
 #
 #-- Author: P Campbell-Burns, UKMON
@@ -23,61 +24,69 @@
 #=============================================================================
 
 # Set report selection criteria
+args = commandArgs(trailingOnly = TRUE)
+if (length(args) == 0) {
+  stop("At least one argument must be supplied (input file).n", call. = FALSE)
+}
+CurrentYr = strtoi(args[1])
 
-CurrentYr = '2018'
 knitr::opts_chunk$set(echo = TRUE)
 
 # Station list
 
 stations <- list(
-  "Ash Vale",        c("Ash_Vale_K1", "Ash_Vale_K2", "Ash_Vale_K3"),
-  "Church Crookham", c("Church_Cro_S1", "Church_Cro_S2"),
+  "Ash Vale",        c("Ash_Vale_K1", "Ash_Vale_K2", "Ash_Vale_K3", "UK000C"),
+  "Church Crookham", c("Church_Cro_S1", "Church_Cro_S2", "UK0009", "UK0022"),
   "Clanfield",       c("Clanfield_NE", "Clanfield_NO", "Clanfield_NW", "Clanfield_SO", "Clanfield_SE"),
   "DL",              c("DL1_"),
-  "Chard",           c("Chard_CD", "Chard_L1"),
-  "Basingstoke",     c("Basingstok_E", "Basingstok_W", "Basingstok_N", "Basingstok_S", "Basingstok_SW"),
-  "Cardiff",         c("Duffryn_C2", "Dyffryn_C2", "MC1_c1"),
-  "Horley",          c("Horley_SE"),
+  "Chard",           c("Chard_CD", "Chard_L1", "UK001Z", "UK0024", "UK0025"),
   "East Barnet",     c("EastBarnet_NW", "EastBarnet_NE", "EastBarnet_No", "EastBarnet_01"),
   "Lockyer",         c("Lockyer_L1", "Lockyer1_L1", "Lockyer2_L2"),
-  "Scotch Street",   c("Scotch_St_C1", "Scotch_St_C2", "Scotch_St_C3"),
   "Wilcot",          c("Wilcot_", "Wilcot_01", "Wilcot_E", "Wilcot_N", "Wilcot_S", "Wilcot_NE", "Wilcot_NW", "Wilcot_SE", "Wilcot_SW", "Wilcot_W"),
-  "Dorchester",      c("DORCHESTER_1"),
-  "Duffryn",         c("Dyffryn_C2", "Duffryn_C2"),
-  "MC1",             c("MC1_c1"),
-  "Tackley",         c("TACKLEY_TC", "TACKLEY_NE"),
-  "Blackfield",      c("Blackfield_"),
-  "Loscoe",          c("Loscoe_S")
-
-
+  "Cardiff",         c("Duffryn_C2", "Dyffryn_C2", "MC1_c1"),
+  "Tackley",         c("TACKLEY_TC", "TACKLEY_NE", "UK0006", "UK000F", "UK001L", "UK002F"),
+  "Blackfield",      c("Blackfield_", "UK002B"),
+  "Loscoe",          c("Loscoe_S", "UK0003"),
+  "Exeter",          c("UK0020", "UK0021"), 
+  "Ringwood",        c("UK0001", "UK000H", "UK000S"),
+  "Corntown",        c("UK000T", "UK001K"), 
+  "Bath",            c("UK0027"), 
+  "Boston",          c("UK0026"),
+  "Gretna",          c("UK000P"),
+  "Tissington",      c("UK000Y", "UK000Z"),
+  "Bideford",        c("UK0007"), 
+  "Trelawynd",       c("UK002A"),
+  "Longbridge",      c("UK002E"),
+  "Pantybwlch",      c("UK0029")
 )
 
 library(xtable)
 library(knitr)
 library(tcltk)
+library(stringr)
 
 #-- Filesystem parameters
 
-root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
-source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
+source(paste(".", "/CONFIG/Lib_Config.r",sep=""))
 
   runtime = format(Sys.time(),"%Y%m%d_%H%M")
 
   # Import data
 
-  SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
-  SourceSingle     <-  "UFO_Merged_Files.csv"       # Single Obs File
+#  SourceUnified    <-  "UKMON-all-unified.csv"   # Unified Obs File
+#  SourceSingle     <-  "UFO_Merged_Files.csv"       # Single Obs File
 
   # - Read UFO Orbit data file
 
-  indir <- tk_choose.dir(caption = "Select source directory")
-  infile1 <- paste(indir,"/",SourceUnified,sep = "")
-  infile2 <- paste(indir,"/",SourceSingle,sep = "")
+  #indir <- tk_choose.dir(caption = "Select source directory")
+  #infile1 <- paste(indir,"/",SourceUnified,sep = "")
+  #infile2 <- paste(indir,"/",SourceSingle,sep = "")
+  infile1 <- paste(DataDir, SourceUnified, sep = "/")
+  infile2 <- paste(DataDir, SourceSingle, sep = "/")
 
   # --- Read the UFO data filea
   m_all_unified <- read.csv(infile1, header=TRUE)
   m_all_single <- read.csv(infile2, header=TRUE)
-  m_all_single  <- unique( m_all_single  )
 
   # Standardise UNIFIED data
   m_all_unified$X_ID1<- substring(m_all_unified$X_ID1,2)
@@ -88,13 +97,15 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
   # Standardise SINGLETON data
   trim_J <- function (x) gsub("^J\\d_|^\\sJ\\d_|\\s", "", x)
   m_all_single <-   m_all_single[grep("^J\\d_|^\\sJ\\d_|SPO|\\sSPO|spo|\\sspo",m_all_single$Group),]
-  m_all_single$X_ID1<- substring(m_all_single$Loc_Cam,2)
+  m_all_single$X_ID1<- str_trim(m_all_single$Loc_Cam)
   m_all_single$X_localtime <- as.POSIXct(strptime(m_all_single$LocalTime, "%Y%m%d_%H%M%S"))
   m_all_single <- subset(m_all_single, ! is.na(LocalTime))
   m_all_single$X_stream <- toupper(trim_J(m_all_single$Group))
   m_all_single$X_mag <- as.numeric(trim_J(m_all_single$Mag))
   m_all_single$X_dur <- toupper(trim_J(m_all_single$Dur.sec.))
   m_all_single  <- subset(m_all_single, ! is.na(X_localtime))
+  m_all_single <- subset(m_all_single, m_all_single$X_stream != 'TBC')
+
 
   m_all_single <- m_all_single[,c("X_ID1", "X_stream", "X_localtime", "X_dur", "X_mag")]
   m_all_unified <- m_all_unified[,c("X_ID1", "X_ID2", "X_stream","X_localtime", "X_dur", "X_mag")]
@@ -144,8 +155,8 @@ source(paste(root, "/CONFIG/Lib_Config.r",sep=""))
     if (nrow(m_s_station_yr) != 0) {
 
     # Produce report
-
-       rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=ReportDir, output_file=paste(SelectStation,".html",sep=""))
+       outdir = paste(ReportDir, "stations", CurrentYr, sep="/")
+       rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=outdir, output_file=paste(SelectStation,".html",sep=""))
         }
     }
   }

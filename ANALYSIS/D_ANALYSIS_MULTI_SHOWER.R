@@ -27,18 +27,14 @@
 #
 #=============================================================================
 
-#-- Filesystem parameters
-
-root = "~/ANALYSIS"					 # Filesystem root (~ is users documents folder on Windows)
-
 d_threshold = 0.6
 Binsize     = 0.01
 D_Type      = "DD"
-J_catalog   = paste(root,"/CONFIG/j8.csv",sep="")
+J_catalog   = paste(".","/CONFIG/j8.csv",sep="")
 
 # Initialise environment variables and common functions
 
-    source(paste(root,"/CONFIG/Lib_Config.r",sep=""))
+    source(paste(".","/CONFIG/Lib_Config.r",sep=""))
     source(paste(FuncDir,"/common_functions.r",sep=""))
     source(paste(FuncDir,"/D_Criteria.r",sep=""))
     
