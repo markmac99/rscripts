@@ -8,14 +8,17 @@
 #
 
 #==================================================================
-outfile = paste(Set_Outfile("/TABLE_station_match_correlation",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_station_match_correlation", Yr = SelectYr, Stream = SelectStream), ".csv", sep = "")
 
-tmp <- subset(mt,substring(mt$X_ID1,2,8) != "UNIFIED")
-tmp$X_ID2 = substr(tmp$X_ID2,2,30)
+# can only really do this with the old UFO data
+if (singletype == "UNIFIED") {
+  tmp <- subset(mt, substring(mt$X_ID1, 2, 8) != "UNIFIED")
+  tmp$X_ID2 = substr(tmp$X_ID2, 2, 30)
 
-outtab <- table(tmp$X_ID1,tmp$X_ID2) 
+  outtab <- table(tmp$X_ID1, tmp$X_ID2)
 
-write.table(outtab,outfile, sep=",",col.names=NA)
+  write.table(outtab, outfile, sep = ",", col.names = NA)
 
-rm(tmp)
-rm(outtab)
+  rm(tmp)
+  rm(outtab)
+}

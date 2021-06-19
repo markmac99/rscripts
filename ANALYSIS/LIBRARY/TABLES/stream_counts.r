@@ -9,10 +9,13 @@
 #
 # =================================================================
 
-outfile = paste(Set_Outfile("/TABLE_stream_counts",Yr=SelectYr, Stream=SelectStream),".csv",sep="")
+outfile = paste(Set_Outfile("/TABLE_stream_counts", Yr = SelectYr, Stream = SelectStream), ".csv", sep = "")
 
+if (singletype == "UNIFIED") {
+  outtab <- table(mu$X_stream)
+} else {
+  outtab <- table(mu$Group)
+}
 
-outtab <- table(mu$X_stream) 
-
-write.table(outtab,outfile, sep=",",col.names=NA)
+write.table(outtab, outfile, sep = ",", col.names = NA)
 rm(outtab)
