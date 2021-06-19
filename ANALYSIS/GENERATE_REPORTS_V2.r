@@ -9,7 +9,11 @@
 #   This script runs a set of R scripts which generate tables and reports
 #   from a file containing UNIFIED observations created using UFO Orbit.  
 #
-#   This script prompts the user for the output type (PDF, JPEG or CONSOLE), 
+#   This script can be called in two ways:
+#   If two arguments are supplied (shower ID and year), then the script will 
+#   automatically generate a report for that shower and year. eg LYR 2021
+#   will generate a report for the 2021 Lyrids.
+#   If two args are not spplied the script prompts the user for 
 #   a stream name and year.  It then filters and standardises UFO orbit data
 #   before calling the plot / table routines.
 #
@@ -73,13 +77,11 @@ if (is.na(OutType)) {
   OutType = Olist[i]
 }
 
-# Set the R working directory (this is where R saves its environment)
-
-setwd(WorkingDir)
-
 # Read UNIFIED CSV file created by UFO Orbit (all columns are read) and standardise data
-
 mt <- read_ufo()
+
+# Set the R working directory (this is where R saves its environment)
+#setwd(WorkingDir)
 
 # Following is a quick fix to a UFO data Issue
 if (is.factor(mt$X_amag)) {
