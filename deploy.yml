@@ -1,0 +1,69 @@
+---
+- hosts: ukmonhelper
+  vars:
+    srcdir: /mnt/e/dev/meteorhunting/UKMON-shared/PCB/ANALYSIS
+  tasks:
+  - name: import dev variables 
+    include_vars: ../archive/dev-vars.yml
+    tags: dev
+  - name: import prod variables
+    include_vars: ../archive/prod-vars.yml
+    tags: prod
+  - name: Ensures {{destdir}}/data/reports/ exists
+    file: path={{destdir}}/data/reports/ state=directory  
+    tags: [dev,prod]
+  - name: Ensures RWORKSPACE exists
+    file: path={{destdir}}/R/RWORKSPACE/ state=directory  
+    tags: [dev,prod]
+  - name: Copy files
+    copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+    with_items:
+    - {src: '{{srcdir}}/GENERATE_REPORTS_V2.r', dest: '{{destdir}}/R/', mode: '755', backup: yes }
+    - {src: '{{srcdir}}/D_ANALYSIS_MULTI_SHOWER_BEST_FIT.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/D_ANALYSIS_MULTI_SHOWER.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/D_ANALYSIS_SINGLE_SHOWER.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/MERGE_FILES_J5.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/MERGE_FILES.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/QA_FILTER_CHECK.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/STATION_SUMMARY_MASTER.r', dest: '{{destdir}}/R/', mode: '755', backup: no }
+    - {src: '{{srcdir}}/STREAM_ANALYSIS_CLASSIFY_v2.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/STREAM_ANALYSIS_ORBIT_V2.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/STATION_SUMMARY_KNITR.rmd', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/SUMMARY_REPORT_BY_STREAM.Rmd', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/SUMMARY_REPORT.Rmd', dest: '{{destdir}}/R/', mode: '644', backup: no }
+    - {src: '{{srcdir}}/CONFIG/', dest: '{{destdir}}/R/CONFIG/', mode: '644', backup: yes, directory_mode: yes }
+    - {src: '{{srcdir}}/LIBRARY/FUNCTIONS/', dest: '{{destdir}}/R/LIBRARY/FUNCTIONS/', mode: '644', backup: no, directory_mode: yes }
+    - {src: '{{srcdir}}/LIBRARY/TABLES/', dest: '{{destdir}}/R/LIBRARY/TABLES/', mode: '644', backup: no, directory_mode: yes }
+    - {src: '{{srcdir}}/LIBRARY/PLOTS/', dest: '{{destdir}}/R/LIBRARY/PLOTS/', mode: '644', backup: no, directory_mode: yes }
+    tags: [dev,prod]
+    
+  - name: update unified source data name
+    lineinfile: 
+      path: '{{destdir}}/R/CONFIG/Lib_Config.r'
+      regexp: 'SourceUnified'
+      line: 'SourceUnified    <-  "UKMON-all-matches.csv"   # Unified Obs File'
+    tags: [dev,prod]
+  - name: update single source data name
+    lineinfile: 
+      path: '{{destdir}}/R/CONFIG/Lib_Config.r'
+      regexp: 'SourceSingle'
+      line: 'SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File '
+    tags: [dev,prod]
+  - name: update root location
+    lineinfile:
+      path: '{{destdir}}/R/CONFIG/Lib_Config.r'
+      regexp: 'root ='
+      line: 'root = "{{destdir}}/R"'
+    tags: [dev,prod]
+  - name: update source data location
+    lineinfile:
+      path: '{{destdir}}/R/CONFIG/Lib_Config.r'
+      regexp: 'DataDir        = '
+      line: 'DataDir        = "{{destdir}}/data"               # Source meteor data'
+    tags: [dev,prod]
+  - name: update reports location
+    lineinfile:
+      path: '{{destdir}}/R/CONFIG/Lib_Config.r'
+      regexp: 'ReportDir      = '
+      line: 'ReportDir      = "{{destdir}}/data/reports"       # Path to output report directory'
+    tags: [dev,prod]
