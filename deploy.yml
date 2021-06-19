@@ -4,10 +4,10 @@
     srcdir: /mnt/e/dev/meteorhunting/rscripts/ANALYSIS
   tasks:
   - name: import dev variables 
-    include_vars: ../../ukmon-shared/archive/dev-vars.yml
+    include_vars: ../UKmon-shared/archive/dev-vars.yml
     tags: dev
   - name: import prod variables
-    include_vars: ../../ukmon-shared/archive/prod-vars.yml
+    include_vars: ../UKmon-shared/archive/prod-vars.yml
     tags: prod
   - name: Ensures {{destdir}}/data/reports/ exists
     file: path={{destdir}}/data/reports/ state=directory  
@@ -22,7 +22,6 @@
     - {src: '{{srcdir}}/D_ANALYSIS_MULTI_SHOWER_BEST_FIT.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
     - {src: '{{srcdir}}/D_ANALYSIS_MULTI_SHOWER.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
     - {src: '{{srcdir}}/D_ANALYSIS_SINGLE_SHOWER.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
-    - {src: '{{srcdir}}/MERGE_FILES_J5.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
     - {src: '{{srcdir}}/MERGE_FILES.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
     - {src: '{{srcdir}}/QA_FILTER_CHECK.R', dest: '{{destdir}}/R/', mode: '644', backup: no }
     - {src: '{{srcdir}}/STATION_SUMMARY_MASTER.r', dest: '{{destdir}}/R/', mode: '755', backup: no }

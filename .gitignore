@@ -2,3 +2,4 @@ ANALYSIS/REPORTS/*
 ANALYSIS/DATA/UKMON*.csv
 ANALYSIS/syncback.ps1
 ANALYSIS/.Rhistory
+ANALYSIS/DATA/camera-details.csv
