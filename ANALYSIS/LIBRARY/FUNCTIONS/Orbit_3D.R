@@ -37,92 +37,94 @@
 library(rgl)
 
 rotate_x <- function(Pxyz, angle) {
-# rotate about X axis (angle in Radians)
+  # rotate about X axis (angle in Radians)
   sn = sin(angle)
   cs = cos(angle)
-  return( cbind( Pxyz[,1], Pxyz[,2]*cs + Pxyz[,3]*sn, -Pxyz[,2]*sn + Pxyz[,3]*cs ) ) 
-  }
- 
+  return(cbind(Pxyz[, 1], Pxyz[, 2] * cs + Pxyz[, 3] * sn, - Pxyz[, 2] * sn + Pxyz[, 3] * cs))
+}
+
 rotate_y <- function(Pxyz, angle) {
-# rotate about Y axis (angle in Radians)
+  # rotate about Y axis (angle in Radians)
   sn = sin(angle)
   cs = cos(angle)
-  return( cbind(Pxyz[,1]*cs - Pxyz[,3]*sn, Pxyz[,2], Pxyz[,1]*sn + Pxyz[,3]*cs ) ) 
-  }
+  return(cbind(Pxyz[, 1] * cs - Pxyz[, 3] * sn, Pxyz[, 2], Pxyz[, 1] * sn + Pxyz[, 3] * cs))
+}
 
 rotate_z <- function(Pxyz, angle) {
-# rotate about Z axis (angle in Radians)
+  # rotate about Z axis (angle in Radians)
   sn = sin(angle)
   cs = cos(angle)
-  return( cbind(Pxyz[,1]*cs + Pxyz[,2]*sn, -Pxyz[,1]*sn + Pxyz[,2]*cs, Pxyz[,3] ) ) 
-  }
+  return(cbind(Pxyz[, 1] * cs + Pxyz[, 2] * sn, - Pxyz[, 1] * sn + Pxyz[, 2] * cs, Pxyz[, 3]))
+}
 
 elem_deg_2_rad <- function(elements) {
-#-- Convert orbital elements in degrees to radians
-    const <- pi / 180
-  return( c(elements[1:2],elements[3:5] * const))
-  }
+  #-- Convert orbital elements in degrees to radians
+  const <- pi / 180
+  return(c(elements[1:2], elements[3:5] * const))
+}
 
 polar_2_cart <- function(r, theta) {
-#-- Convert polar coordinates to cartesian coordinates
-  x = matrix(r * cos(theta), ncol=1)
-  y = matrix(r * sin(theta), ncol=1)
-  return(cbind(x,y))
-  }
+  #-- Convert polar coordinates to cartesian coordinates
+  x = matrix(r * cos(theta), ncol = 1)
+  y = matrix(r * sin(theta), ncol = 1)
+  return(cbind(x, y))
+}
 
 kepler_solve <- function(e, M, max_error) {
-#Solve kepler's equation (Danby's algorithm).
-  pi_2 <- 2*3.141592653589793
+  #Solve kepler's equation (Danby's algorithm).
+  pi_2 <- 2 * 3.141592653589793
   M_mod <- M %% pi_2
   s <- M_mod * 0 + 1
   s[sin(M_mod) < 0.0] = -1
-  E = M_mod + 0.85*s*e
+  E = M_mod + 0.85 * s * e
   max_iter = 16
   for (i in 0:max_iter) {
-    es = e*sin(E)
-    ec = e*cos(E)
+    es = e * sin(E)
+    ec = e * cos(E)
     f = E - es - M_mod
     error = max(abs(f))
-    if (error < max_error) { break }
+    if (error < max_error) {
+      break 
+    }
     df = 1.0 - ec
     ddf = es
     dddf = ec
-    d1 = -f/df
-    d2 = -f/(df + d1*ddf/2.0)
-    d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0)
+    d1 = -f / df
+    d2 = -f / (df + d1 * ddf / 2.0)
+    d3 = -f / (df + d2 * ddf / 2.0 + d2 * d2 * dddf / 6.0)
     E = E + d3
   }
-  if (error > max_error) { 
-      print("ERROR: kepler_solve did not converge - max error exceeded, error = ", error)
-      }
+  if (error > max_error) {
+    print("ERROR: kepler_solve did not converge - max error exceeded, error = ", error)
+  }
   return(E)
-  }
+}
 
-elements_2_polar <- function(a,e,M,max_error) {
-#-- Convert orbital elements to polar coordinates
+elements_2_polar <- function(a, e, M, max_error) {
+  #-- Convert orbital elements to polar coordinates
   E <- kepler_solve(e, M, max_error)
-  r <- matrix(a*(1 - e*cos(E)),ncol=1)
-  f <- matrix(2.0*atan( sqrt((1 + e)/(1 - e))*tan(E/2) ),ncol=1)
-  z <- matrix(r*0.0,ncol=1)
+  r <- matrix(a * (1 - e * cos(E)), ncol = 1)
+  f <- matrix(2.0 * atan(sqrt((1 + e) / (1 - e)) * tan(E / 2)), ncol = 1)
+  z <- matrix(r * 0.0, ncol = 1)
   return(cbind(r, f, z))
-  }
+}
 
-el2xyz <- function (elements, Mplot, max_error) {
-#convert orbit elements to cartesian coordinates and velocities.
+el2xyz <- function(elements, Mplot, max_error) {
+  #convert orbit elements to cartesian coordinates and velocities.
   rfz = elements_2_polar(elements[1], elements[2], Mplot, max_error)
   attributes(rfz)
-  xy  = polar_2_cart(rfz[,1], rfz[,2])
-  xyz = rotate_z(cbind(xy, rfz[,3]), -elements[5])
-  xyz = rotate_x(xyz, -elements[3])
-  xyz = rotate_z(xyz, -elements[4])
+  xy = polar_2_cart(rfz[, 1], rfz[, 2])
+  xyz = rotate_z(cbind(xy, rfz[, 3]), - elements[5])
+  xyz = rotate_x(xyz, - elements[3])
+  xyz = rotate_z(xyz, - elements[4])
   return(xyz)
-  }
+}
 
 orbit <- function(elements) {
-#-- calculate and plot an orbit in 3D
+  #-- calculate and plot an orbit in 3D
   Resolution = 10001
   max_error <- 1.0e-10
-  Mplot <- seq(0, 2*pi, (2 * pi) / Resolution)
+  Mplot <- seq(0, 2 * pi, (2 * pi) / Resolution)
   elements_r = elem_deg_2_rad(elements)
   xyz = el2xyz(elements_r, Mplot, max_error)
   xyz = rotate_y(xyz, elements_r[4])
@@ -132,13 +134,13 @@ orbit <- function(elements) {
 }
 
 Mercury_Orbit <- function() {
-  a     = 0.387098750
-  e     = 0.205633707
+  a = 0.387098750
+  e = 0.205633707
   i_deg = 7.00427693
   o_deg = 48.3155706
   w_deg = 29.1597880
   m_deg = 109.448230
-  return(c(a,e,i_deg,o_deg,w_deg,m_deg))
+  return(c(a, e, i_deg, o_deg, w_deg, m_deg))
 }
 
 Venus_Orbit <- function() {
@@ -148,7 +150,7 @@ Venus_Orbit <- function() {
   o_deg = 76.68069
   w_deg = 0.0
   m_deg = 0.0
-  return(c(a,e,i_deg,o_deg,w_deg,m_deg))
+  return(c(a, e, i_deg, o_deg, w_deg, m_deg))
 }
 
 Earth_Orbit <- function() {
@@ -158,7 +160,6 @@ Earth_Orbit <- function() {
   o_deg = -11.26064
   w_deg = 0.0
   m_deg = 0.0
-  return(c(a,e,i_deg,o_deg,w_deg,m_deg))
+  return(c(a, e, i_deg, o_deg, w_deg, m_deg))
 }
 
- 

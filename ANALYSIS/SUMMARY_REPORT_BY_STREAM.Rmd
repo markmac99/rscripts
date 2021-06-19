@@ -223,7 +223,7 @@ date: 27 Nov 2016
 After processing of data by UFO_ORBIT and applying appropriate quality criteria, a total of `r nrow(ms)` `r Streamname` observations were recorded by indvidual stations which which could be matched with more than one station. the following graph shows matched observation counts by station:
 
 ```{r echo=FALSE, fig.height = 5, fig.extra='style="float:left"'}
-source(paste(PlotDir,"Streamcounts_plot_by_station.r",sep="/"),local=TRUE)
+source(paste(PlotDir,"streamcounts_plot_by_station.r",sep="/"),local=TRUE)
 box(which="plot",lty="solid")
 ```
 
