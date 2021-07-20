@@ -135,8 +135,9 @@ library(stringr)
     if (nrow(m_s_station_yr) != 0) {
 
     # Produce report
-       outdir = paste(ReportDir, "stations", CurrentYr, sep="/")
-       rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=outdir, output_file=paste(SelectStation,".html",sep=""))
+       outdir = paste(ReportDir, CurrentYr, "stations",  sep="/")
+       staname = str_replace_all(SelectStation," ","_")
+       rmarkdown::render(paste(root,'/STATION_SUMMARY_KNITR.rmd',sep=""),envir=knitrenv,output_dir=outdir, output_file=paste(staname,".html",sep=""))
         }
     }
   }
