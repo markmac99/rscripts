@@ -38,13 +38,13 @@ select_dev(Outfile, Otype=output_type, wd= paper_width, ht=paper_height, pp=pape
 # Plot meteor counts by individual stations
 if (singletype == "UNIFIED"){
     dfm = get.bin.counts(ms$X_localtime, name.x = "time", 
-                         start.pt = as.POSIXct(SelectStart),
-                         end.pt = as.POSIXct(SelectEnd), 
+                         start.pt = as.POSIXct(SelectStartSingle),
+                         end.pt = as.POSIXct(SelectEndSingle), 
                          bin.width = SelectInterval)
 }else{
     dfm = get.bin.counts(ms$LocalTime, name.x = "time", 
-                         start.pt = as.POSIXct(SelectStart),
-                         end.pt = as.POSIXct(SelectEnd), 
+                         start.pt = as.POSIXct(SelectStartSingle),
+                         end.pt = as.POSIXct(SelectEndSingle), 
                          bin.width = SelectInterval)
 
 }

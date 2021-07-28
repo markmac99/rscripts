@@ -137,14 +137,19 @@ if (rows_read == 0) {
     mi <- read_ufa()
     singletype = "SINGLE"
     ms <- filter_stream(mi, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
+    SelectStartSingle = min(ms$LocalTime) - 24 * 60 * 60
+    SelectEndSingle = max(ms$LocalTime) + 24 * 60 * 60
   }
   else
   {
     ms <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
+    SelectStartSingle = min(ms$LocalTime) - 24 * 60 * 60
+    SelectEndSingle = max(ms$LocalTime) + 24 * 60 * 60
   }
   
-  SelectStart = min(mu$X_localtime - 24 * 60 * 60)
-  SelectEnd = max(mu$X_localtime + 24 * 60 * 60)
+  SelectStart = min(mu$X_localtime) - 24 * 60 * 60
+  SelectEnd = max(mu$X_localtime) + 24 * 60 * 60
+
 
   if (nrow(mu) == 0) {
     stop(paste("No MATCHED observations for stream", SelectStream, "were found in the input data"))
@@ -179,7 +184,7 @@ if (rows_read == 0) {
       Runscript("abs_magnitude_vs_h_diff_reg.r", Otype = OutType, orient = Landscape)
       Runscript("abs_magnitude_vs_h1_h2.r", Otype = OutType, orient = Landscape)
       Runscript("heliocentric_velocity.r", Otype = OutType, orient = Landscape)
-      Runscript("Semimajoraxisfreq.r", Otype = OutType, orient = Landscape)
+      Runscript("semimajoraxisfreq.r", Otype = OutType, orient = Landscape)
       Runscript("fireball_by_month.r", Otype = OutType, orient = Landscape)
       Runscript("a_binned.r", Otype = OutType, orient = Landscape)
       Runscript("a_binned_multi.r", Otype = OutType, orient = Landscape)
