@@ -50,7 +50,7 @@
 args = commandArgs(trailingOnly = TRUE)
 getUserInput = 0
 if (length(args) == 0) {
-  getUserInput = 1 
+  getUserInput = 1
 }
 
 # Initialise environment variables and common functions
@@ -105,10 +105,10 @@ if (rows_read == 0) {
 
   # Select which stream / year to process
 
-  if (getUserInput == 1){
+  if (getUserInput == 1) {
     stream <- get_stream(mt)
     SelectYr <- get_year(mt)
-  }else{
+  } else {
     stream <- match_stream(mt, args[1])
     SelectYr = strtoi(args[2])
   }
@@ -127,33 +127,30 @@ if (rows_read == 0) {
 
   # Get UNIFIED and Single observations
 
-  mu <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "UNIFIED", itype= "UNIFIED")
+  mu <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "UNIFIED", itype = "UNIFIED")
 
   # Before 2020 all data is in a single UFO-Orbit format
   # but after that the single station data is in a separate file
   singletype = "UNFIED"
-  if( SelectYr > 2019)
-  {
+  if (SelectYr > 2019) {
     mi <- read_ufa()
     singletype = "SINGLE"
     ms <- filter_stream(mi, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
     SelectStartSingle = min(ms$LocalTime) - 24 * 60 * 60
     SelectEndSingle = max(ms$LocalTime) + 24 * 60 * 60
   }
-  else
-  {
+  else {
     ms <- filter_stream(mt, mstream = SelectStream, myr = SelectYr, mtype = "OTHER", itype = singletype)
     SelectStartSingle = min(ms$LocalTime) - 24 * 60 * 60
     SelectEndSingle = max(ms$LocalTime) + 24 * 60 * 60
   }
-  
-  SelectStart = min(mu$X_localtime) - 24 * 60 * 60
-  SelectEnd = max(mu$X_localtime) + 24 * 60 * 60
-
 
   if (nrow(mu) == 0) {
-    stop(paste("No MATCHED observations for stream", SelectStream, "were found in the input data"))
+    paste("No MATCHED observations for stream", SelectStream, "were found in the input data")
   } else {
+
+    SelectStart = min(mu$X_localtime) - 24 * 60 * 60
+    SelectEnd = max(mu$X_localtime) + 24 * 60 * 60
 
     # Apply Quality Criteria
 
@@ -163,9 +160,9 @@ if (rows_read == 0) {
 
     rows_to_process <- nrow(mu)
     if (rows_to_process == 0) {
-      stop("No data to process - check / adjust QA filter settings")
+      paste("No data to process - check / adjust QA filter settings")
     } else {
-
+      paste("Processing stream data ...")
       # Set dataset title
 
       DataSet = paste("Dataset:", SelectStream, "period", substring(min(mu$X_local), 1, 10), "to", substring(max(mu$X_local), 1, 10))
@@ -193,11 +190,13 @@ if (rows_read == 0) {
 
       #-- Generate generic tables
 
+      paste("Generic tables...")
       source(paste(TabsDir, "fireball_detect.r", sep = "/"))
       source(paste(TabsDir, "stream_counts_by_year.r", sep = "/"))
 
       # Run scripts relevant only to streams
 
+      paste("stream tables...")
       if (SelectStream != "ALL" & SelectStream != "SPO") {
         Runscript("stream_plot_radiant_movement.r", Otype = OutType, orient = Landscape)
         Runscript("stream_plot_timeline_solar.r", Otype = OutType, orient = Landscape)
@@ -218,40 +217,45 @@ if (rows_read == 0) {
       } else {
         cat(paste("Note: Plots for ALL have been excluded", "\n"))
       }
-
-      # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
-      # and the selected report is a Stream Report
-
-      if (nrow(ms) != 0 & SelectStream != "ALL" & SelectStream != "SPO") {
-        Runscript("stream_plot_timeline_single.r", Otype = OutType, orient = Landscape)
-      }
-
-      # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
-
-      if (nrow(ms) != 0) {
-        Runscript("streamcounts_plot_by_station.r", Otype = OutType, orient = Landscape)
-        if (singletype == "UNIFIED"){
-          Runscript("delta_vo_overall.r", Otype = OutType, orient = Landscape)
-          Runscript("delta_vo_by_station.r", Otype = "PDF", orient = Landscape)
-          Runscript("qa_by_station.r", Otype = "PDF", orient = Landscape)
-          Runscript("qa_overall.r", Otype = OutType, orient = Landscape)
-          Runscript("cdeg_overall.r", Otype = OutType, orient = Landscape)
-          Runscript("cdeg_by_station.r", Otype = "PDF", orient = Landscape)
-        }
-        #-- Table outputs
-        source(paste(TabsDir, "station_tab_match_correlation.r", sep = "/"))
-        source(paste(TabsDir, "stream_counts_by_station.r", sep = "/"))
-        source(paste(TabsDir, "stream_counts.r", sep = "/"))
-        source(paste(TabsDir, "station_tab_match_top_correlation.r", sep = "/"))
-      } else {
-        cat(paste("Note: No Station data in source data (Unified only)", "\n"))
-      }
-
-      cat("Run complete", format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
     }
-
   }
 
+  if (nrow(mu) == 0) {
+    SelectStart = min(ms$LocalTime) - 24 * 60 * 60
+    SelectEnd = max(ms$LocalTime) + 24 * 60 * 60
+  } else {
+    SelectStart = min(mu$X_localtime) - 24 * 60 * 60
+    SelectEnd = max(mu$X_localtime) + 24 * 60 * 60
+  }
+  # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
+  # and the selected report is a Stream Report
+  if (nrow(ms) != 0 & SelectStream != "ALL" & SelectStream != "SPO") {
+    paste("timeline...")
+    Runscript("stream_plot_timeline_single.r", Otype = OutType, orient = Landscape)
+  }
+
+  # The following scripts will run ONLY if there is station data in MS (not supplied by Edmond)
+
+  if (nrow(ms) != 0) {
+    paste("station data...")
+    Runscript("streamcounts_plot_by_station.r", Otype = OutType, orient = Landscape)
+    if (singletype == "UNIFIED") {
+      Runscript("delta_vo_overall.r", Otype = OutType, orient = Landscape)
+      Runscript("delta_vo_by_station.r", Otype = "PDF", orient = Landscape)
+      Runscript("qa_by_station.r", Otype = "PDF", orient = Landscape)
+      Runscript("qa_overall.r", Otype = OutType, orient = Landscape)
+      Runscript("cdeg_overall.r", Otype = OutType, orient = Landscape)
+      Runscript("cdeg_by_station.r", Otype = "PDF", orient = Landscape)
+    }
+    #-- Table outputs
+    source(paste(TabsDir, "station_tab_match_correlation.r", sep = "/"))
+    source(paste(TabsDir, "stream_counts_by_station.r", sep = "/"))
+    source(paste(TabsDir, "stream_counts.r", sep = "/"))
+    source(paste(TabsDir, "station_tab_match_top_correlation.r", sep = "/"))
+  } else {
+    cat(paste("Note: No Station data in source data (Unified only)", "\n"))
+  }
+  cat("Run complete", format(Sys.time(), "%a %b %d %Y %H:%M:%S"))
 }
 
 
