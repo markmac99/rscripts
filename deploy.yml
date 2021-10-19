@@ -40,13 +40,13 @@
     lineinfile: 
       path: '{{destdir}}/R/CONFIG/Lib_Config.r'
       regexp: 'SourceUnified'
-      line: 'SourceUnified    <-  "UKMON-all-matches.csv"   # Unified Obs File'
+      line: 'SourceUnified    <-  "matched/matches-YEAR.csv"   # Unified Obs File'
     tags: [dev,prod]
   - name: update single source data name
     lineinfile: 
       path: '{{destdir}}/R/CONFIG/Lib_Config.r'
       regexp: 'SourceSingle'
-      line: 'SourceSingle     <-  "UKMON-all-single.csv"    # Single Obs File '
+      line: 'SourceSingle     <-  "consolidated/UKMON-YEAR-single.csv"    # Single Obs File '
     tags: [dev,prod]
   - name: update root location
     lineinfile:

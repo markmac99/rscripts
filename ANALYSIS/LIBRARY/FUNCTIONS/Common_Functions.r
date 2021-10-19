@@ -197,6 +197,7 @@ read_ufo <- function(mx) {
   if (is.na(SourceUnified)) {
     infile <- tk_choose.files(caption = "Select UFO Orbit Unified file", multi = FALSE, filters = filt)
   } else {
+    SourceUnified = gsub('YEAR', SelectYr, SourceUnified)
     infile <- paste(DataDir, SourceUnified, sep = "/")
   }
 
@@ -247,6 +248,7 @@ read_ufa <- function(mx) {
   if (is.na(SourceSingle)) {
     infile <- tk_choose.files(caption = "Select UFO Analyser Consolidated file", multi = FALSE, filters = filt)
   } else {
+    SourceSingle =  gsub('YEAR', SelectYr, SourceSingle)
     infile <- paste(DataDir, SourceSingle, sep = "/")
   }
 

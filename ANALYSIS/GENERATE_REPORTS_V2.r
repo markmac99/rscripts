@@ -77,6 +77,14 @@ if (is.na(OutType)) {
   OutType = Olist[i]
 }
 
+if (getUserInput == 1) {
+  stream <- get_stream(mt)
+  SelectYr <- get_year(mt)
+} else {
+  stream <- match_stream(mt, args[1])
+  SelectYr <- strtoi(args[2])
+}
+
 # Read UNIFIED CSV file created by UFO Orbit (all columns are read) and standardise data
 mt <- read_ufo()
 
@@ -105,13 +113,6 @@ if (rows_read == 0) {
 
   # Select which stream / year to process
 
-  if (getUserInput == 1) {
-    stream <- get_stream(mt)
-    SelectYr <- get_year(mt)
-  } else {
-    stream <- match_stream(mt, args[1])
-    SelectYr = strtoi(args[2])
-  }
   SelectStream = stream[1,]
   Streamname = stream[2,]
   Solpeak = as.numeric(stream[3,])
