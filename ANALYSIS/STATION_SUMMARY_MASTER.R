@@ -61,6 +61,8 @@ library(stringr)
   #indir <- tk_choose.dir(caption = "Select source directory")
   #infile1 <- paste(indir,"/",SourceUnified,sep = "")
   #infile2 <- paste(indir,"/",SourceSingle,sep = "")
+  SourceUnified = gsub('YEAR', CurrentYr, SourceUnified)
+  SourceSingle = gsub('YEAR', CurrentYr, SourceSingle)
   infile1 <- paste(DataDir, SourceUnified, sep = "/")
   infile2 <- paste(DataDir, SourceSingle, sep = "/")
 
